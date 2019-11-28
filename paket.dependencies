@@ -1,0 +1,31 @@
+version 5.226.0
+source https://www.nuget.org/api/v2
+storage: none
+
+group server
+storage:none
+source: https://api.nuget.org/v3/index.json
+framework: netcoreapp3.0
+
+nuget FSharp.Core
+nuget Microsoft.NET.Sdk.Functions 1.0.30-beta2 beta
+
+group client
+storage:none
+source: https://api.nuget.org/v3/index.json
+framework: netstandard2.0
+
+nuget Fable.React
+nuget Fable.Elmish
+nuget Fable.Promise
+nuget Fable.Fetch
+nuget Thoth.Json
+
+group build
+storage:none
+source: https://api.nuget.org/v3/index.json
+framework: netstandard2.0
+nuget Fake.Core.Target
+nuget Fake.IO.FileSystem
+nuget Fake.JavaScript.Yarn
+nuget Fake.DotNet.Paket
