@@ -9,10 +9,13 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.JavaScript
 open System
+open Fantomas.FakeHelpers
+open Fantomas.FormatConfig
 
 let clientPath = Path.getFullName "./client"
 let setYarnWorkingDirectory (args: Yarn.YarnParams) = { args with WorkingDirectory = clientPath }
 let serverPath = Path.getFullName "./server"
+let sharedPath = Path.getFullName "./shared"
 
 module Paket =
     let private runCmd cmd args =
@@ -36,6 +39,10 @@ Target.create "Paket" (fun _ ->
     Paket.restore id
     Shell.rm_rf (".paket" </> "load")
     Paket.``generate load script``())
+
+Target.create "Build" (fun _ ->
+    Yarn.exec "build" setYarnWorkingDirectory
+    DotNet.build (fun config -> { config with Configuration = DotNet.BuildConfiguration.Release }) (serverPath </> "server.fsproj"))
 
 Target.create "Watch" (fun _ ->
     let fableOutput output =
@@ -83,10 +90,29 @@ Target.create "Watch" (fun _ ->
     |> Async.Ignore
     |> Async.RunSynchronously)
 
+Target.create "Format" (fun _ ->
+    let fantomasConfig =
+        { FormatConfig.Default with
+              ReorderOpenDeclaration = true
+              KeepNewlineAfter = true }
+
+    let fsharpFiles =
+        !!(serverPath </> "*.fs") ++
+        (clientPath </> "fsharp" </> "*.fsx") ++
+        (sharedPath </> "*.fs")
+
+    fsharpFiles
+    |> formatCode fantomasConfig
+    |> Async.RunSynchronously
+    |> printfn "Formatted F# files: %A"
+
+    Yarn.exec "format" setYarnWorkingDirectory)
+
+
 Target.create "Default" ignore
 
-"Clean" ==> "Paket" ==> "Yarn" ==> "Default"
+"Clean" ==> "Paket" ==> "Yarn" ==> "Build"
 
 "Paket" ==> "Yarn" ==> "Watch"
 
-Target.runOrDefault "Default"
+Target.runOrDefault "Build"

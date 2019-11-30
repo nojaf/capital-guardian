@@ -13,7 +13,8 @@ open System.Net.Http
 let AddEvents([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)>] req: HttpRequest, log: ILogger) =
     log.LogInformation("F# HTTP trigger function processed a request...")
     let content = using (new StreamReader(req.Body)) (fun stream -> stream.ReadToEnd())
-    new HttpResponseMessage(HttpStatusCode.OK, Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json"))
+    new HttpResponseMessage(HttpStatusCode.OK,
+                            Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json"))
 //    let model = Decode.fromString GetTokensRequest.Decode content
 //    match model with
 //    | Ok model ->
@@ -30,4 +31,5 @@ let AddEvents([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)>
 let GetEvents([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)>] req: HttpRequest, log: ILogger) =
     log.LogInformation("F# HTTP trigger function processed a request.........")
     let content = (req.Query.Item "name") |> (string)
-    new HttpResponseMessage(HttpStatusCode.OK, Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json"))
+    new HttpResponseMessage(HttpStatusCode.OK,
+                            Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json"))
