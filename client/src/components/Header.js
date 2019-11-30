@@ -6,7 +6,7 @@ const Header = () => {
     <Jumbotron>
       <Container>
         <div className="d-flex">
-          <img src="/react.png" height={"100px"} alt="" />
+          <img src="/react.png" height={"100px"} alt="" className={'mt-2'} />
           <div className={"px-2 flex-grow-1 text-center"}>
             <h1 className="display-3">Create React App with Fable</h1>
             <p className="lead">
@@ -14,7 +14,7 @@ const Header = () => {
               create-react-application &amp; Fable
             </p>
           </div>
-          <img src="/fable.png" height={"100px"} alt="" />
+          <img src="/fable.png" height={"100px"} alt="" className={'mt-2'} />
         </div>
         <div className="text-right">
           <Button
