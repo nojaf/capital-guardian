@@ -8,9 +8,9 @@ open Fake.IO
 open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.JavaScript
-open System
 open Fantomas.FakeHelpers
 open Fantomas.FormatConfig
+open System
 
 let clientPath = Path.getFullName "./client"
 let setYarnWorkingDirectory (args: Yarn.YarnParams) = { args with WorkingDirectory = clientPath }
@@ -36,24 +36,25 @@ Target.create "Clean" (fun _ ->
 Target.create "Yarn" (fun _ -> Yarn.installPureLock setYarnWorkingDirectory)
 
 Target.create "Paket" (fun _ ->
-    Paket.restore id
+    Paket.restore (fun p -> { p with ToolType = ToolType.CreateLocalTool() })
     Shell.rm_rf (".paket" </> "load")
     Paket.``generate load script``())
 
 Target.create "Build" (fun _ ->
     Yarn.exec "build" setYarnWorkingDirectory
-    DotNet.build (fun config -> { config with Configuration = DotNet.BuildConfiguration.Release }) (serverPath </> "server.fsproj"))
+    DotNet.build (fun config -> { config with Configuration = DotNet.BuildConfiguration.Release })
+        (serverPath </> "server.fsproj"))
 
 Target.create "Watch" (fun _ ->
     let fableOutput output =
         Trace.tracefn "%s" output
-        if output = "fable: Watching..." then
-            Yarn.exec "start" setYarnWorkingDirectory
+        if output = "fable: Watching..." then Yarn.exec "start" setYarnWorkingDirectory
 
-    let fableError output = Trace.traceErrorfn "\n%s\n" output
+    let fableError output =
+        Trace.traceErrorfn "\n%s\n" output
 
     let compileFable =
-        CreateProcess.fromRawCommand Yarn.defaultYarnParams.YarnFilePath ["fable";"--watch"]
+        CreateProcess.fromRawCommand Yarn.defaultYarnParams.YarnFilePath [ "fable"; "--watch" ]
         |> CreateProcess.withWorkingDirectory clientPath
         |> CreateProcess.redirectOutput
         |> CreateProcess.withOutputEventsNotNull fableOutput fableError
@@ -68,7 +69,7 @@ Target.create "Watch" (fun _ ->
         | Some funcPath ->
             let dirtyWatcher: IDisposable ref = ref null
 
-            use watcher =
+            let watcher =
                 !!(serverPath </> "*.fs") ++ (serverPath </> "*.fsproj")
                 |> ChangeWatcher.run (fun changes ->
                     printfn "FILE CHANGE %A" changes
@@ -86,7 +87,7 @@ Target.create "Watch" (fun _ ->
 
     let runAzureFunction = async { startFunc() }
 
-    Async.Parallel [ runAzureFunction; compileFable]
+    Async.Parallel [ runAzureFunction; compileFable ]
     |> Async.Ignore
     |> Async.RunSynchronously)
 
@@ -96,10 +97,7 @@ Target.create "Format" (fun _ ->
               ReorderOpenDeclaration = true
               KeepNewlineAfter = true }
 
-    let fsharpFiles =
-        !!(serverPath </> "*.fs") ++
-        (clientPath </> "fsharp" </> "*.fsx") ++
-        (sharedPath </> "*.fs")
+    let fsharpFiles = !!(serverPath </> "*.fs") ++ (clientPath </> "fsharp" </> "*.fsx") ++ (sharedPath </> "*.fs")
 
     fsharpFiles
     |> formatCode fantomasConfig
