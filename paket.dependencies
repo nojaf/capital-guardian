@@ -7,8 +7,10 @@ storage:none
 source: https://api.nuget.org/v3/index.json
 framework: netcoreapp3.1
 
+nuget CosmoStore.TableStorage 3.0.0
 nuget FSharp.Core
 nuget Microsoft.NET.Sdk.Functions 3.0.2
+nuget Thoth.Json.Net
 
 group client
 storage:none
