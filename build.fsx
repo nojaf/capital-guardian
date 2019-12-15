@@ -11,6 +11,8 @@ open Fake.JavaScript
 open Fantomas.FakeHelpers
 open Fantomas.FormatConfig
 open System
+open Farmer
+open Farmer.Resources
 
 let clientPath = Path.getFullName "./client"
 let setYarnWorkingDirectory (args: Yarn.YarnParams) = { args with WorkingDirectory = clientPath }
@@ -40,10 +42,13 @@ Target.create "Paket" (fun _ ->
     Shell.rm_rf (".paket" </> "load")
     Paket.``generate load script``())
 
-Target.create "Build" (fun _ ->
-    Yarn.exec "build" setYarnWorkingDirectory
+Target.create "BuildClient" (fun _ -> Yarn.exec "build" setYarnWorkingDirectory)
+
+Target.create "BuildServer" (fun _ ->
     DotNet.build (fun config -> { config with Configuration = DotNet.BuildConfiguration.Release })
         (serverPath </> "server.fsproj"))
+
+Target.create "Build" ignore
 
 Target.create "Watch" (fun _ ->
     let fableOutput output =
@@ -106,11 +111,52 @@ Target.create "Format" (fun _ ->
 
     Yarn.exec "format" setYarnWorkingDirectory)
 
+// dotnet fake run build.fsx -t AzureResources -- env=dev
+Target.create "AzureResources" (fun p ->
+    let environment =
+        p.Context.Arguments
+        |> List.choose (fun a ->
+            match a.Split([|'='|]) with
+            | [|"env";env|] -> Some env
+            | _ -> None)
+        |> List.tryHead
+        |> Option.defaultValue "dev"
+
+    let resourceGroup = sprintf "rg-capitalgardian-%s" environment
+
+    let storageAccountConfig = storageAccount {
+        name (sprintf "storcptlgrddata%s" environment)
+        sku Sku.StandardLRS
+    }
+
+    let applicationInsights = appInsights  {
+        name (sprintf "ai-capitalguardian-%s" environment)
+    }
+
+    let azureFunctions = functions {
+        name (sprintf "azfun-capitalguardian-%s" environment)
+        app_insights_manual applicationInsights.Name
+        storage_account_link storageAccountConfig.Name.Value
+    }
+
+    let template = arm {
+        location WestEurope
+        add_resource storageAccountConfig
+        add_resource applicationInsights
+        add_resource azureFunctions
+    }
+
+    Writer.quickDeploy resourceGroup template
+)
+
 
 Target.create "Default" ignore
+
+"BuildClient" ==> "Build"
+"BuildServer" ==> "Build"
 
 "Clean" ==> "Paket" ==> "Yarn" ==> "Build"
 
 "Paket" ==> "Yarn" ==> "Watch"
 
-Target.runOrDefault "Build"
+Target.runOrDefaultWithArguments "Build"

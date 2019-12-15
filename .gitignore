@@ -351,3 +351,5 @@ MigrationBackup/
 .idea/
 .paket/
 .env
+/farmer-deploy.bat
+/farmer-deploy.json

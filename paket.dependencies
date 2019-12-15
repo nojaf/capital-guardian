@@ -5,10 +5,10 @@ storage: none
 group server
 storage:none
 source: https://api.nuget.org/v3/index.json
-framework: netcoreapp3.0
+framework: netcoreapp3.1
 
 nuget FSharp.Core
-nuget Microsoft.NET.Sdk.Functions 1.0.30-beta2 beta
+nuget Microsoft.NET.Sdk.Functions 3.0.2
 
 group client
 storage:none
@@ -30,3 +30,4 @@ nuget Fake.IO.FileSystem
 nuget Fake.JavaScript.Yarn
 nuget Fake.DotNet.Paket
 nuget Fantomas
+nuget Farmer 0.1.0
