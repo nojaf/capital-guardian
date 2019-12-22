@@ -10,6 +10,8 @@ open Thoth.Json
 
 module Projections =
     let isInCurrentMonth (a: DateTime) = DateTime.Now.Year = a.Year && DateTime.Now.Month = a.Month
+    let isInMonth month year (a: DateTime) = a.Year = year && a.Month = month
+
 
     let calculateBalanceForCurrentMonth events =
         events
@@ -120,9 +122,10 @@ let useBalance() =
     Projections.calculateBalanceForCurrentMonth events
 
 /// Returns a  list of income and expense of the current month
-let useEntries() =
+let useEntries month year =
     let { Events = events } = useModel()
 
+    let filter = Projections.isInMonth month year
     let sortMapAndToArray (input: Transaction seq) =
         input
         |> Seq.sortBy (fun ai -> ai.Created)
@@ -134,14 +137,14 @@ let useEntries() =
     let income =
         events
         |> Seq.choose (function
-            | Event.AddIncome(ai) when (Projections.isInCurrentMonth ai.Created) -> Some ai
+            | Event.AddIncome(ai) when (filter ai.Created) -> Some ai
             | _ -> None)
         |> sortMapAndToArray
 
     let expenses =
         events
         |> Seq.choose (function
-            | Event.AddExpense(ae) when (Projections.isInCurrentMonth ae.Created) -> Some ae
+            | Event.AddExpense(ae) when (filter ae.Created) -> Some ae
             | _ -> None)
         |> sortMapAndToArray
 

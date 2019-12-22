@@ -1,10 +1,11 @@
 import React from "react";
+import { number } from "prop-types";
 import { Container } from "reactstrap";
 import { EntryList, Header, Loader, EntryForm } from "../components";
 import { useEntries, useIsLoading, useAddEntry } from "../bin/Main";
 
-const HomePage = () => {
-  const [income, expenses] = useEntries();
+const MonthPage = ({ month, year}) => {
+  const [income, expenses] = useEntries(month, year);
   const isLoading = useIsLoading();
   const addEntry = useAddEntry();
   const body = (
@@ -27,4 +28,9 @@ const HomePage = () => {
   return isLoading ? <Loader /> : body;
 };
 
-export default HomePage;
+MonthPage.propTypes = {
+    month: number.isRequired,
+    year: number.isRequired
+}
+
+export default MonthPage;

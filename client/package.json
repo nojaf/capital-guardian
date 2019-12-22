@@ -15,7 +15,8 @@
     "prop-types": "15.7.2",
     "react-hook-form": "3.28.9",
     "react-switch": "5.0.1",
-    "yup": "0.27.0"
+    "yup": "0.27.0",
+    "hookrouter": "1.2.3"
   },
   "scripts": {
     "start": "react-scripts start",
