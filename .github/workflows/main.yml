@@ -20,3 +20,5 @@ jobs:
         run: dotnet tool restore
       - name: Build
         run: dotnet fake run build.fsx
+        env:
+          EXTEND_ESLINT: true
