@@ -152,10 +152,7 @@ Target.create "AzureResources" (fun p ->
 
 Target.create "Default" ignore
 
-"BuildClient" ==> "Build"
-"BuildServer" ==> "Build"
-
-"Clean" ==> "Paket" ==> "Yarn" ==> "Build"
+"Clean" ==> "Paket" ==> "Yarn" ==> "BuildClient" ==> "BuildServer" ==> "Build"
 
 "Paket" ==> "Yarn" ==> "Watch"
 
