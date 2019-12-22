@@ -353,3 +353,4 @@ MigrationBackup/
 .env
 /farmer-deploy.bat
 /farmer-deploy.json
+watch.ps1

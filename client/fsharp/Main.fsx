@@ -6,6 +6,7 @@ open Fable.Core
 open Fable.React
 open Nojaf.CapitalGuardian.Shared
 open System
+open Thoth.Json
 
 module Projections =
     let isInCurrentMonth (a: DateTime) = DateTime.Now.Year = a.Year && DateTime.Now.Month = a.Month
@@ -31,11 +32,24 @@ type Model =
     { Events: Event list
       IsLoading: bool }
 
+let private baseUrl =
+    #if DEBUG
+    "http://localhost:7071"
+    #else
+    "<tdb>"
+    #endif
+
+let private decodeEvent = Decode.Auto.generateDecoder<Event>()
+
 let private fetchEvents() =
-    promise {
-        do! Promise.sleep 500
-        return sampleEvents
-    }
+    let url = sprintf "%s/api/GetEvents" baseUrl
+    Fetch.fetch url []
+    |> Promise.bind (fun res -> res.text())
+    |> Promise.map (fun json ->
+        Decode.fromString (Decode.list decodeEvent) json
+        |> function | Ok events -> events
+                    | Error e -> failwithf "%s" e
+    )
 
 let private postEvents events _ = printfn "Posting events %A to the backend" events
 

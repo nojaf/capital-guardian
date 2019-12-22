@@ -10,6 +10,9 @@ open Thoth.Json.Net
 open System.Net
 open System.Net.Http
 
+let private sendJson json =
+    new HttpResponseMessage(HttpStatusCode.OK, Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"))
+
 [<FunctionName("AddEvents")>]
 let AddEvents([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)>] req: HttpRequest, log: ILogger) =
     log.LogInformation("F# HTTP trigger function processed a request...")
@@ -30,8 +33,7 @@ let GetEvents([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)>]
         let json =
             Encode.list events
             |> Encode.toString 4
-        let response =     new HttpResponseMessage(HttpStatusCode.OK, Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"))
-        return response
+        return sendJson json
     }
 
 

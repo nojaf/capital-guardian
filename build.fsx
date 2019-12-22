@@ -59,7 +59,7 @@ Target.create "Watch" (fun _ ->
         Trace.traceErrorfn "\n%s\n" output
 
     let compileFable =
-        CreateProcess.fromRawCommand Yarn.defaultYarnParams.YarnFilePath [ "fable"; "--watch" ]
+        CreateProcess.fromRawCommand Yarn.defaultYarnParams.YarnFilePath [ "fable"; "-d"; "--watch" ]
         |> CreateProcess.withWorkingDirectory clientPath
         |> CreateProcess.redirectOutput
         |> CreateProcess.withOutputEventsNotNull fableOutput fableError
