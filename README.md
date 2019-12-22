@@ -1,5 +1,7 @@
 # Capital Guardian
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/nojaf/capital-guardian.svg)](https://greenkeeper.io/)
+
 Added sA sample application where [Create React App](https://create-react-app.dev/) and [Fable](https://fable.io/) come together.
 
 Source code for https://blog.nojaf.com/2019/12/10/using-create-react-app-with-fable/

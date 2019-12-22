@@ -10,12 +10,12 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.3.0",
-    "reactstrap": "8.1.1",
+    "reactstrap": "8.2.0",
     "prettier": "1.19.1",
     "prop-types": "15.7.2",
-    "react-hook-form": "3.28.9",
+    "react-hook-form": "3.29.4",
     "react-switch": "5.0.1",
-    "yup": "0.27.0",
+    "yup": "0.28.0",
     "hookrouter": "1.2.3"
   },
   "scripts": {
