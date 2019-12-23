@@ -18,7 +18,7 @@ export function useXsOrSm() {
   return xs || sm;
 }
 
-export function useNotLarge(){
+export function useNotLarge() {
   const { breakpoint } = useBreakpoint(config, "md");
   const xsOrSm = useXsOrSm();
   return breakpoint === "md" || xsOrSm;

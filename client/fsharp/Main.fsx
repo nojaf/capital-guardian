@@ -3,15 +3,16 @@
 
 open Elmish
 open Fable.Core
+open Fable.Core.JsInterop
 open Fable.React
+open Fetch
 open Nojaf.CapitalGuardian.Shared
 open System
 open Thoth.Json
-open Fetch
-open Fable.Core.JsInterop
 
 module Projections =
     let isInMonth month year (a: DateTime) = a.Year = year && a.Month = month
+
     let calculateBalance month year events =
         let filter = isInMonth month year
         events
@@ -23,7 +24,10 @@ module Projections =
 
 let private f g = System.Func<_, _>(g)
 
-type Toast = { Icon:string; Title:string; Body:string }
+type Toast =
+    { Icon: string
+      Title: string
+      Body: string }
 
 type Msg =
     | AddIncome of Transaction
@@ -37,14 +41,14 @@ type Msg =
 type Model =
     { Events: Event list
       IsLoading: bool
-      Toasts: Map<int,Toast> }
+      Toasts: Map<int, Toast> }
 
 let private baseUrl =
-    #if DEBUG
+#if DEBUG
     "http://localhost:7071"
-    #else
+#else
     "<tdb>"
-    #endif
+#endif
 
 let private decodeEvent = Decode.Auto.generateDecoder<Event>()
 let private encodeEvent = Encode.Auto.generateEncoder<Event>()
@@ -55,23 +59,25 @@ let private fetchEvents() =
     |> Promise.bind (fun res -> res.text())
     |> Promise.map (fun json ->
         Decode.fromString (Decode.list decodeEvent) json
-        |> function | Ok events -> events
-                    | Error e -> failwithf "%s" e
-    )
+        |> function
+        | Ok events -> events
+        | Error e -> failwithf "%s" e)
 
 let private postEvents events =
     let url = sprintf "%s/api/AddEvents" baseUrl
+
     let json =
         events
         |> List.map encodeEvent
         |> Encode.list
         |> Encode.toString 2
-    fetch url [RequestProperties.Body (!^ json); RequestProperties.Method HttpMethod.POST]
+    fetch url
+        [ RequestProperties.Body(!^json)
+          RequestProperties.Method HttpMethod.POST ]
     |> Promise.map (fun _ ->
         { Icon = "success"
           Title = "Saved"
-          Body = "☁ persisted events to the cloud." }
-    )
+          Body = "☁ persisted events to the cloud." })
 
 let private init _ =
     { IsLoading = true
@@ -88,8 +94,7 @@ let private nextKey map =
         |> (+) 1
 
 let private hideToastIn toastId miliSecondes dispatch =
-    JS.setTimeout(fun () -> dispatch (Msg.ClearToast toastId)) miliSecondes
-    |> ignore
+    JS.setTimeout (fun () -> dispatch (Msg.ClearToast toastId)) miliSecondes |> ignore
 
 let private update (msg: Msg) (model: Model) =
     JS.console.log msg
@@ -101,12 +106,12 @@ let private update (msg: Msg) (model: Model) =
     | AddIncome transaction ->
         let event = Event.AddIncome transaction
         { model with Events = event :: model.Events },
-        Cmd.OfPromise.either postEvents [event] ShowToast NetworkError
+        Cmd.OfPromise.either postEvents [ event ] ShowToast NetworkError
 
     | AddExpense transaction ->
         let event = Event.AddExpense transaction
         { model with Events = event :: model.Events },
-        Cmd.OfPromise.either postEvents [event] ShowToast NetworkError
+        Cmd.OfPromise.either postEvents [ event ] ShowToast NetworkError
 
     | ShowToast(toast) ->
         let toastId = nextKey model.Toasts
@@ -118,7 +123,12 @@ let private update (msg: Msg) (model: Model) =
         { model with Toasts = toasts }, Cmd.none
 
     | NetworkError ne ->
-        model, Cmd.ofMsg (ShowToast({ Title = "Network Error"; Icon = "danger"; Body = ne.Message }))
+        model,
+        Cmd.ofMsg
+            (ShowToast
+                ({ Title = "Network Error"
+                   Icon = "danger"
+                   Body = ne.Message }))
 
     | _ -> failwithf "Msg %A not implemented" msg
 
@@ -176,6 +186,7 @@ let useEntries month year =
     let { Events = events } = useModel()
 
     let filter = Projections.isInMonth month year
+
     let sortMapAndToArray (input: Transaction seq) =
         input
         |> Seq.sortBy (fun ai -> ai.Created)
@@ -208,11 +219,11 @@ let useAddEntry() =
     let dispatch = useDispatch()
     fun (input: {| name: string; amount: Amount; isIncome: bool; created: string |}) ->
         let createdDate =
-            input.created.Split([|'-'|])
+            input.created.Split([| '-' |])
             |> Array.map (System.Int32.Parse)
             |> fun pieces ->
                 match pieces with
-                | [|year;month;day|] -> DateTime(year,month, day)
+                | [| year; month; day |] -> DateTime(year, month, day)
                 | _ -> DateTime.Now
 
         let entry =
@@ -243,14 +254,15 @@ let private getMonthName n =
     | 12 -> "December"
     | _ -> "Unknown month"
 
-let useOverviewPerMonth () =
+let useOverviewPerMonth() =
     let { Events = events } = useModel()
+
     let months =
         events
         |> List.choose (fun msg ->
             match msg with
-            | Event.AddIncome({Created = created})
-            | Event.AddExpense({Created = created}) -> Some(created.Month, created.Year)
+            | Event.AddIncome({ Created = created })
+            | Event.AddExpense({ Created = created }) -> Some(created.Month, created.Year)
             | _ -> None)
         |> List.distinct
         |> List.sort
@@ -258,28 +270,30 @@ let useOverviewPerMonth () =
         |> List.map (fun (year, months) ->
             let rows =
                 months
-                |> List.map (fun (m,y) -> {| name = getMonthName m
-                                             month = m
-                                             balance = Projections.calculateBalance m y events |})
+                |> List.map (fun (m, y) ->
+                    {| name = getMonthName m
+                       month = m
+                       balance = Projections.calculateBalance m y events |})
                 |> List.toArray
+
             let balance = rows |> Array.sumBy (fun mth -> mth.balance)
-            {| name = year; months = rows; balance = balance |}
-            )
+            {| name = year
+               months = rows
+               balance = balance |})
         |> List.toArray
     months
 
 let useDefaultCreateDate month year =
     let today = DateTime.Now
-    if today.Month = month && today.Year = year
-    then today.ToString("dd")
-    else "01"
+    if today.Month = month && today.Year = year then today.ToString("dd") else "01"
     |> sprintf "%i-%i-%s" year month
 
-let useToasts () =
+let useToasts() =
     let { Toasts = toasts } = useModel()
     toasts
     |> Map.toArray
-    |> Array.map (fun (id,t) -> {| id = id
-                                   title = t.Title
-                                   icon = t.Icon
-                                   body = t.Body |})
+    |> Array.map (fun (id, t) ->
+        {| id = id
+           title = t.Title
+           icon = t.Icon
+           body = t.Body |})

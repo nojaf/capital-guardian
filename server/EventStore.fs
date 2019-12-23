@@ -2,10 +2,10 @@ module Nojaf.CapitalGuardian.EventStore
 
 open CosmoStore
 open FSharp.Control.Tasks
-open System
-open Thoth.Json.Net
 open Microsoft.FSharp.Reflection
 open Nojaf.CapitalGuardian.Shared
+open System
+open Thoth.Json.Net
 
 let private storageAccountName = Environment.GetEnvironmentVariable("StorageAccountName")
 let private storageAuthKey = Environment.GetEnvironmentVariable("StorageAccountKey")
@@ -18,7 +18,7 @@ let private eventStore = TableStorage.EventStore.getEventStore config
 let private encodeEvent = Encode.Auto.generateEncoder<Event>()
 let decodeEvent = Decode.Auto.generateDecoder<Event>()
 
-let private getUnionCaseName (x:'a) =
+let private getUnionCaseName (x: 'a) =
     match FSharpValue.GetUnionFields(x, typeof<'a>) with
     | case, _ -> case.Name
 
@@ -34,14 +34,12 @@ let appendEvents (events: Event list) =
     let cosmoEvents = List.map createEvent events
     task {
         let! _ = eventStore.AppendEvents streamName Any cosmoEvents
-        return ()
-    }
+        return () }
 
 
-let getEvents () =
+let getEvents() =
     task {
         let! cosmoEvents = eventStore.GetEvents streamName AllEvents
-        let events = List.map (fun (ce: EventRead<JsonValue,_>) -> ce.Data) cosmoEvents
+        let events = List.map (fun (ce: EventRead<JsonValue, _>) -> ce.Data) cosmoEvents
         return events
     }
-
