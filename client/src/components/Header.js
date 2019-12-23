@@ -1,10 +1,9 @@
 import React from "react";
-import { Button, Container, Jumbotron } from "reactstrap";
+import { Button, Jumbotron } from "reactstrap";
 
 const Header = () => {
   return (
     <Jumbotron>
-      <Container>
         <div className="d-flex align-items-start">
           <img src="/logo.png" height={"100px"} alt="" className={'mt-3'} />
           <div className={"px-2 flex-grow-1"}>
@@ -31,7 +30,6 @@ const Header = () => {
             Fork on GitHub
           </Button>
         </div>
-      </Container>
     </Jumbotron>
   );
 };
