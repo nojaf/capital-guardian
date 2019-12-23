@@ -23,17 +23,21 @@ module Projections =
 
 let private f g = System.Func<_, _>(g)
 
+type Toast = { Icon:string; Title:string; Body:string }
+
 type Msg =
     | AddIncome of Transaction
     | AddExpense of Transaction
     | LoadEvents
     | EventsLoaded of Event list
     | NetworkError of exn
-    | ShowToast of icon:string * title:string * body:string
+    | ShowToast of Toast
+    | ClearToast of int
 
 type Model =
     { Events: Event list
-      IsLoading: bool }
+      IsLoading: bool
+      Toasts: Map<int,Toast> }
 
 let private baseUrl =
     #if DEBUG
@@ -63,15 +67,29 @@ let private postEvents events =
         |> Encode.list
         |> Encode.toString 2
     fetch url [RequestProperties.Body (!^ json); RequestProperties.Method HttpMethod.POST]
-    |> Promise.map (fun response ->
-        printfn "%A" response
-        "success", "Saved", "persisted events to the cloud ☁"
+    |> Promise.map (fun _ ->
+        { Icon = "success"
+          Title = "Saved"
+          Body = "☁ persisted events to the cloud." }
     )
-
 
 let private init _ =
     { IsLoading = true
-      Events = [] }, Cmd.OfPromise.either fetchEvents () EventsLoaded NetworkError
+      Events = []
+      Toasts = Map.empty }, Cmd.OfPromise.either fetchEvents () EventsLoaded NetworkError
+
+let private nextKey map =
+    if Map.isEmpty map then
+        0
+    else
+        Map.toArray map
+        |> Array.map fst
+        |> Array.max
+        |> (+) 1
+
+let private hideToastIn toastId miliSecondes dispatch =
+    JS.setTimeout(fun () -> dispatch (Msg.ClearToast toastId)) miliSecondes
+    |> ignore
 
 let private update (msg: Msg) (model: Model) =
     JS.console.log msg
@@ -90,9 +108,17 @@ let private update (msg: Msg) (model: Model) =
         { model with Events = event :: model.Events },
         Cmd.OfPromise.either postEvents [event] ShowToast NetworkError
 
-    | ShowToast(icon,title ,description) ->
-        printfn "show toast"
-        model, Cmd.none
+    | ShowToast(toast) ->
+        let toastId = nextKey model.Toasts
+        let toasts = Map.add toastId toast model.Toasts
+        { model with Toasts = toasts }, Cmd.ofSub (hideToastIn toastId 2500)
+
+    | ClearToast toastId ->
+        let toasts = Map.remove toastId model.Toasts
+        { model with Toasts = toasts }, Cmd.none
+
+    | NetworkError ne ->
+        model, Cmd.ofMsg (ShowToast({ Title = "Network Error"; Icon = "danger"; Body = ne.Message }))
 
     | _ -> failwithf "Msg %A not implemented" msg
 
@@ -248,3 +274,12 @@ let useDefaultCreateDate month year =
     then today.ToString("dd")
     else "01"
     |> sprintf "%i-%i-%s" year month
+
+let useToasts () =
+    let { Toasts = toasts } = useModel()
+    toasts
+    |> Map.toArray
+    |> Array.map (fun (id,t) -> {| id = id
+                                   title = t.Title
+                                   icon = t.Icon
+                                   body = t.Body |})

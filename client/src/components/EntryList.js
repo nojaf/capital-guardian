@@ -3,7 +3,6 @@ import { arrayOf, number, shape, string } from "prop-types";
 import { Table } from "reactstrap";
 
 const EntryList = ({ entries }) => {
-  console.log(`entries`, entries);
   const rows = entries.map((e, i) => {
     return (
       <tr key={i}>
