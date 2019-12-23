@@ -4,6 +4,7 @@ import useForm from "react-hook-form";
 import PropTypes from "prop-types";
 import * as yup from "yup";
 import ToggleButton from "./ToggleButton";
+import { useNotLarge } from "../hooks/breakpoints";
 
 const EntrySchema = yup.object().shape({
   name: yup.string().required(),
@@ -29,10 +30,22 @@ const EntryForm = ({ onSubmit, created }) => {
     onSubmit(values);
     reset();
   };
+  const notLarge = useNotLarge();
+  const button = notLarge ? (
+    <div className={"text-right"}>
+      <Button color={"primary"}>Add</Button>
+    </div>
+  ) : (
+    <Button color={"primary ml-2"}>Add</Button>
+  );
 
   return (
     <div>
-      <Form onSubmit={handleSubmit(onFormSubmit)} inline className={"my-3"}>
+      <Form
+        onSubmit={handleSubmit(onFormSubmit)}
+        inline={!notLarge}
+        className={"my-3"}
+      >
         <FormGroup>
           <Input
             type="text"
@@ -54,17 +67,19 @@ const EntryForm = ({ onSubmit, created }) => {
           />
         </FormGroup>
         <FormGroup>
-          <Input type={'date'}
-                 name={'created'}
-                 innerRef={register}
-                 className={'mr-2'} />
+          <Input
+            type={"date"}
+            name={"created"}
+            innerRef={register}
+            className={"mr-2"}
+          />
         </FormGroup>
         <ToggleButton
           register={register}
           label={"Is income?"}
           name={"isIncome"}
         />
-        <Button color={"primary"}>Add</Button>
+        {button}
       </Form>
       {errors.name && <p className={"text-danger"}>Name is required</p>}
       {errors.amount && <p className={"text-danger"}>Amount is required</p>}

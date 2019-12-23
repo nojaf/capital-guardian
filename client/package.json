@@ -16,7 +16,8 @@
     "react-hook-form": "3.29.4",
     "react-switch": "5.0.1",
     "yup": "0.28.0",
-    "hookrouter": "1.2.3"
+    "hookrouter": "1.2.3",
+    "use-breakpoint": "1.0.31"
   },
   "scripts": {
     "start": "react-scripts start",

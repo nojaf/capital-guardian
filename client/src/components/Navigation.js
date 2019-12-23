@@ -5,10 +5,12 @@ import {
   NavItem,
   Collapse,
   NavLink,
-  Nav
+  Nav,
+  NavbarBrand
 } from "reactstrap";
 import NavbarText from "reactstrap/lib/NavbarText";
 import { A, usePath } from "hookrouter";
+import { useXsOrSm } from "../hooks/breakpoints";
 
 const Link = ({ route, children }) => {
   const path = usePath();
@@ -24,19 +26,36 @@ const Link = ({ route, children }) => {
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
+  const showBrand = useXsOrSm();
+
+  const NavbarInner = ({ children }) =>
+    showBrand ? (
+      <Navbar color={"dark"} dark expand={"md"}>
+        {children}
+      </Navbar>
+    ) : (
+      <Navbar color={"light"} light expand={"md"}>
+        {children}
+      </Navbar>
+    );
 
   return (
-    <Navbar color={"light"} light expand={"md"}>
+    <NavbarInner>
+      {showBrand && (
+        <NavbarBrand href="/" tag={A} className="mr-auto text-primary">
+          Capital Guardian
+        </NavbarBrand>
+      )}
       <NavbarToggler onClick={toggle} />
       <Collapse isOpen={isOpen} navbar>
-        <Nav className="mr-auto" navbar>
+        <Nav className="mr-auto text-primary" navbar>
           <Link route={"/"}>Home</Link>
           <Link route={"/overview"}>Overview per month</Link>
           <Link route={"/rules"}>Rules</Link>
         </Nav>
         <NavbarText>logout</NavbarText>
       </Collapse>
-    </Navbar>
+    </NavbarInner>
   );
 };
 
