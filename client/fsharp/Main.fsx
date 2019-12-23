@@ -201,6 +201,7 @@ let useOverviewPerMonth () =
             let rows =
                 months
                 |> List.map (fun (m,y) -> {| name = getMonthName m
+                                             month = m
                                              balance = Projections.calculateBalance m y events |})
                 |> List.toArray
             let balance = rows |> Array.sumBy (fun mth -> mth.balance)

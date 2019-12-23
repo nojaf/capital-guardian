@@ -10,7 +10,8 @@ const currentMonth = new Date().getMonth() + 1;
 
 const routes = {
   "/": () => <MonthPage year={currentYear} month={currentMonth} />,
-  "/overview": () => <OverviewPage />
+  "/overview": () => <OverviewPage />,
+  "/:year/:month": ({year, month}) => <MonthPage year={parseInt(year)} month={parseInt(month)}/>
 };
 
 const App = () => {

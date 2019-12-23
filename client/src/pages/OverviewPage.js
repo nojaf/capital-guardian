@@ -1,22 +1,23 @@
 import React from "react";
 import { useOverviewPerMonth } from "../bin/Main";
 import { Table } from "reactstrap";
+import {A} from "hookrouter"
 
 const OverviewPage = () => {
   const data = useOverviewPerMonth();
-  const years = data.map(({ name, months, balance }) => {
-    const rows = months.map(({ name, balance }) => {
+  const years = data.map(({ name:yearName, months, balance }) => {
+    const rows = months.map(({ name, balance, month }) => {
       return (
         <tr key={name}>
-          <td>{name}</td>
+          <td><A href={`/${yearName}/${month}`}>{name}</A></td>
           <td>&euro;{balance}</td>
         </tr>
       );
     });
 
     return (
-      <div key={name} className={"my-2"}>
-        <h2>{name}</h2>
+      <div key={yearName} className={"my-2"}>
+        <h2>{yearName}</h2>
         <Table>
           <thead>
             <tr>
