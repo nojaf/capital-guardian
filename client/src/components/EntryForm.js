@@ -14,13 +14,14 @@ const EntrySchema = yup.object().shape({
   isIncome: yup.bool().required()
 });
 
-const EntryForm = ({ onSubmit }) => {
+const EntryForm = ({ onSubmit, created }) => {
   const { handleSubmit, register, errors, reset } = useForm({
     validationSchema: EntrySchema,
     defaultValues: {
       name: "",
       amount: 0.0,
-      isIncome: false
+      isIncome: false,
+      created: created
     }
   });
 
@@ -52,6 +53,12 @@ const EntryForm = ({ onSubmit }) => {
             className={"mr-2"}
           />
         </FormGroup>
+        <FormGroup>
+          <Input type={'date'}
+                 name={'created'}
+                 innerRef={register}
+                 className={'mr-2'} />
+        </FormGroup>
         <ToggleButton
           register={register}
           label={"Is income?"}
@@ -66,7 +73,8 @@ const EntryForm = ({ onSubmit }) => {
 };
 
 EntryForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired
+  onSubmit: PropTypes.func.isRequired,
+  created: PropTypes.string.isRequired
 };
 
 export default EntryForm;

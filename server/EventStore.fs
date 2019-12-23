@@ -16,7 +16,7 @@ let private streamName = "CapitalGuardian"
 let private eventStore = TableStorage.EventStore.getEventStore config
 
 let private encodeEvent = Encode.Auto.generateEncoder<Event>()
-let private decodeEvent = Decode.Auto.generateDecoder<Event>()
+let decodeEvent = Decode.Auto.generateDecoder<Event>()
 
 let private getUnionCaseName (x:'a) =
     match FSharpValue.GetUnionFields(x, typeof<'a>) with
@@ -32,7 +32,11 @@ let private createEvent event =
 
 let appendEvents (events: Event list) =
     let cosmoEvents = List.map createEvent events
-    eventStore.AppendEvents streamName Any cosmoEvents
+    task {
+        let! _ = eventStore.AppendEvents streamName Any cosmoEvents
+        return ()
+    }
+
 
 let getEvents () =
     task {

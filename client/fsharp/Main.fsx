@@ -7,6 +7,8 @@ open Fable.React
 open Nojaf.CapitalGuardian.Shared
 open System
 open Thoth.Json
+open Fetch
+open Fable.Core.JsInterop
 
 module Projections =
     let isInMonth month year (a: DateTime) = a.Year = year && a.Month = month
@@ -27,6 +29,7 @@ type Msg =
     | LoadEvents
     | EventsLoaded of Event list
     | NetworkError of exn
+    | ShowToast of icon:string * title:string * body:string
 
 type Model =
     { Events: Event list
@@ -40,10 +43,11 @@ let private baseUrl =
     #endif
 
 let private decodeEvent = Decode.Auto.generateDecoder<Event>()
+let private encodeEvent = Encode.Auto.generateEncoder<Event>()
 
 let private fetchEvents() =
     let url = sprintf "%s/api/GetEvents" baseUrl
-    Fetch.fetch url []
+    fetch url []
     |> Promise.bind (fun res -> res.text())
     |> Promise.map (fun json ->
         Decode.fromString (Decode.list decodeEvent) json
@@ -51,7 +55,19 @@ let private fetchEvents() =
                     | Error e -> failwithf "%s" e
     )
 
-let private postEvents events _ = printfn "Posting events %A to the backend" events
+let private postEvents events =
+    let url = sprintf "%s/api/AddEvents" baseUrl
+    let json =
+        events
+        |> List.map encodeEvent
+        |> Encode.list
+        |> Encode.toString 2
+    fetch url [RequestProperties.Body (!^ json); RequestProperties.Method HttpMethod.POST]
+    |> Promise.map (fun response ->
+        printfn "%A" response
+        "success", "Saved", "persisted events to the cloud ☁"
+    )
+
 
 let private init _ =
     { IsLoading = true
@@ -64,9 +80,19 @@ let private update (msg: Msg) (model: Model) =
         { model with
               Events = events
               IsLoading = false }, Cmd.none
-    | AddIncome event
-    | AddExpense event ->
-        { model with Events = (Event.AddIncome event) :: model.Events }, Cmd.ofSub (postEvents [ event ])
+    | AddIncome transaction ->
+        let event = Event.AddIncome transaction
+        { model with Events = event :: model.Events },
+        Cmd.OfPromise.either postEvents [event] ShowToast NetworkError
+
+    | AddExpense transaction ->
+        let event = Event.AddExpense transaction
+        { model with Events = event :: model.Events },
+        Cmd.OfPromise.either postEvents [event] ShowToast NetworkError
+
+    | ShowToast(icon,title ,description) ->
+        printfn "show toast"
+        model, Cmd.none
 
     | _ -> failwithf "Msg %A not implemented" msg
 
@@ -154,14 +180,20 @@ let useIsLoading() =
 
 let useAddEntry() =
     let dispatch = useDispatch()
-    fun (input: {| name: string; amount: Amount; isIncome: bool |}) ->
-        let today = DateTime.Now
+    fun (input: {| name: string; amount: Amount; isIncome: bool; created: string |}) ->
+        let createdDate =
+            input.created.Split([|'-'|])
+            |> Array.map (System.Int32.Parse)
+            |> fun pieces ->
+                match pieces with
+                | [|year;month;day|] -> DateTime(year,month, day)
+                | _ -> DateTime.Now
 
         let entry =
             { Name = input.name
               Amount = input.amount
               Rule = None
-              Created = today }
+              Created = createdDate }
 
         let msg =
             if input.isIncome then AddIncome entry else AddExpense entry
@@ -209,3 +241,10 @@ let useOverviewPerMonth () =
             )
         |> List.toArray
     months
+
+let useDefaultCreateDate month year =
+    let today = DateTime.Now
+    if today.Month = month && today.Year = year
+    then today.ToString("dd")
+    else "01"
+    |> sprintf "%i-%i-%s" year month
