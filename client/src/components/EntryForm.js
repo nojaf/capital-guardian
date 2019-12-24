@@ -1,6 +1,6 @@
 import React from "react";
 import { Form, FormGroup, Input, Button } from "reactstrap";
-import useForm from "react-hook-form";
+import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import * as yup from "yup";
 import ToggleButton from "./ToggleButton";
