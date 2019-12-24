@@ -11,13 +11,14 @@ open Fake.JavaScript
 open Fantomas.FakeHelpers
 open Fantomas.FormatConfig
 open System
-open Farmer
-open Farmer.Resources
+open Thoth.Json.Net
 
 let clientPath = Path.getFullName "./client"
 let setYarnWorkingDirectory (args: Yarn.YarnParams) = { args with WorkingDirectory = clientPath }
 let serverPath = Path.getFullName "./server"
 let sharedPath = Path.getFullName "./shared"
+
+let infrastructurePath = Path.getFullName "./infrastructure"
 
 module Paket =
     let private runCmd cmd args =
@@ -28,6 +29,51 @@ module Paket =
     let private paket args = runCmd "dotnet" ("paket" :: args)
 
     let ``generate load script``() = paket [ "generate-load-scripts"; "-f"; "netstandard2.0"; "-t"; "fsx" ]
+
+module Azure =
+    let az parameters =
+        let azPath = ProcessUtils.findPath [] "az"
+        CreateProcess.fromRawCommand azPath parameters
+        |> Proc.run
+        |> ignore
+
+    let func parameters =
+        let funcPath = ProcessUtils.findPath [] "func"
+        CreateProcess.fromRawCommand funcPath parameters
+        |> CreateProcess.withWorkingDirectory serverPath
+        |> Proc.run
+        |> ignore
+
+type AzureParameters =
+    { ResourceGroup: string
+      StorageAccount:string
+      CdnEndpoint: string
+      CdnProfile: string
+      Functionapp: string
+      ParameterFile: string }
+
+    with static member Decoder parameterFile =
+            Decode.object (fun get ->
+                { ResourceGroup = get.Required.At ["parameters";"resourceGroupName";"value"] Decode.string
+                  StorageAccount = get.Required.At ["parameters";"storageName";"value"] Decode.string
+                  CdnEndpoint =  get.Required.At ["parameters";"endpointName";"value"] Decode.string
+                  CdnProfile =  get.Required.At ["parameters";"cdnProfileName";"value"] Decode.string
+                  Functionapp = get.Required.At ["parameters";"functionappName";"value"] Decode.string
+                  ParameterFile = parameterFile })
+
+let private getParameters p =
+    let environment =
+        p.Context.Arguments
+        |> List.choose (fun a ->
+            match a.Split([|'='|]) with
+            | [|"env";env|] -> Some env
+            | _ -> None)
+        |> List.tryHead
+        |> Option.defaultValue "dev"
+    let parameterFile = Path.combine infrastructurePath (sprintf "%s.json" environment)
+    File.readAsString parameterFile
+    |> Decode.fromString (AzureParameters.Decoder parameterFile)
+    |> function | Ok p -> p | Result.Error err -> failwithf "%A" err
 
 Target.create "Clean" (fun _ ->
     Shell.rm_rf (clientPath </> ".fable")
@@ -42,7 +88,11 @@ Target.create "Paket" (fun _ ->
     Shell.rm_rf (".paket" </> "load")
     Paket.``generate load script``())
 
-Target.create "BuildClient" (fun _ -> Yarn.exec "build" setYarnWorkingDirectory)
+Target.create "BuildClient" (fun p ->
+    let parameters = getParameters p
+    Environment.setEnvironVar "REACT_APP_BACKEND" (sprintf "https://%s.azurewebsites.net" parameters.Functionapp)
+
+    Yarn.exec "build" setYarnWorkingDirectory)
 
 Target.create "BuildServer" (fun _ ->
     DotNet.build (fun config -> { config with Configuration = DotNet.BuildConfiguration.Release })
@@ -69,26 +119,20 @@ Target.create "Watch" (fun _ ->
     let stopFunc() = System.Diagnostics.Process.GetProcessesByName("func") |> Seq.iter (fun p -> p.Kill())
 
     let rec startFunc() =
-        match ProcessUtils.tryFindPath [] "func" with
-        | None -> failwith "func command was not found"
-        | Some funcPath ->
-            let dirtyWatcher: IDisposable ref = ref null
+        let dirtyWatcher: IDisposable ref = ref null
 
-            let watcher =
-                !!(serverPath </> "*.fs") ++ (serverPath </> "*.fsproj")
-                |> ChangeWatcher.run (fun changes ->
-                    printfn "FILE CHANGE %A" changes
-                    if !dirtyWatcher <> null then
-                        (!dirtyWatcher).Dispose()
-                        stopFunc()
-                        startFunc())
+        let watcher =
+            !!(serverPath </> "*.fs") ++ (serverPath </> "*.fsproj")
+            |> ChangeWatcher.run (fun changes ->
+                printfn "FILE CHANGE %A" changes
+                if !dirtyWatcher <> null then
+                    (!dirtyWatcher).Dispose()
+                    stopFunc()
+                    startFunc())
 
-            dirtyWatcher := watcher
+        dirtyWatcher := watcher
 
-            CreateProcess.fromRawCommand funcPath [ "start" ]
-            |> CreateProcess.withWorkingDirectory serverPath
-            |> Proc.run
-            |> ignore
+        Azure.func ["start"]
 
     let runAzureFunction = async { startFunc() }
 
@@ -111,49 +155,52 @@ Target.create "Format" (fun _ ->
 
     Yarn.exec "format" setYarnWorkingDirectory)
 
+Target.create "AzureLogin" (fun _ -> Azure.az ["login"])
+
 // dotnet fake run build.fsx -t AzureResources -- env=dev
 Target.create "AzureResources" (fun p ->
-    let environment =
-        p.Context.Arguments
-        |> List.choose (fun a ->
-            match a.Split([|'='|]) with
-            | [|"env";env|] -> Some env
-            | _ -> None)
-        |> List.tryHead
-        |> Option.defaultValue "dev"
+    let parameters = getParameters p
+    let armFile = Path.combine infrastructurePath "azuredeploy.json"
 
-    let resourceGroup = sprintf "rg-capitalgardian-%s" environment
+    // create resource group
+    Azure.az ["group"; "create" ;"-l"; "westeurope"; "-n"; parameters.ResourceGroup]
 
-    let storageAccountConfig = storageAccount {
-        name (sprintf "storcptlgrddata%s" environment)
-        sku Sku.StandardLRS
-    }
+    // populate resource group
+    Azure.az ["group"; "deployment"; "validate"; "-g"; parameters.ResourceGroup; "--template-file"; armFile; "--parameters"; parameters.ParameterFile]
+    Azure.az ["group"; "deployment"; "create"; "-g"; parameters.ResourceGroup; "--template-file"; armFile; "--parameters"; parameters.ParameterFile]
 
-    let applicationInsights = appInsights  {
-        name (sprintf "ai-capitalguardian-%s" environment)
-    }
-
-    let azureFunctions = functions {
-        name (sprintf "azfun-capitalguardian-%s" environment)
-        app_insights_manual applicationInsights.Name
-        storage_account_link storageAccountConfig.Name.Value
-    }
-
-    let template = arm {
-        location WestEurope
-        add_resource storageAccountConfig
-        add_resource applicationInsights
-        add_resource azureFunctions
-    }
-
-    Writer.quickDeploy resourceGroup template
+    // Mark storage container as static website
+    Azure.az ["storage"; "blob"; "service-properties"; "update"; "--account-name"; parameters.StorageAccount; "--static-website";  "--index-document"; "index.html"]
 )
 
+Target.create "DeployClient" (fun p ->
+    let parameters = getParameters p
+
+    // Deploy static website
+    let clientBuildPath = Path.combine clientPath "build"
+    Azure.az ["storage";"blob";"sync";"-c";"$web";"--account-name";parameters.StorageAccount;"-s";clientBuildPath]
+
+    // Purge CDN
+    Azure.az ["cdn";"endpoint";"purge"
+              "-g"; parameters.ResourceGroup
+              "-n"; parameters.CdnEndpoint
+              "--profile-name"; parameters.CdnProfile
+              "--content-paths"; "/*"]
+    )
+
+Target.create "DeployServer" (fun p ->
+    let parameters = getParameters p
+    Azure.func ["azure";"functionapp";"publish"; parameters.Functionapp; "--csharp"]
+)
 
 Target.create "Default" ignore
 
 "Clean" ==> "Paket" ==> "Yarn" ==> "BuildClient" ==> "BuildServer" ==> "Build"
 
 "Paket" ==> "Yarn" ==> "Watch"
+
+"BuildClient" ==> "DeployClient"
+
+"Paket" ==> "DeployServer"
 
 Target.runOrDefaultWithArguments "Build"

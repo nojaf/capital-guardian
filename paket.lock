@@ -7,6 +7,8 @@ NUGET
   remote: https://api.nuget.org/v3/index.json
     BlackFox.VsWhere (1.0)
       FSharp.Core (>= 4.2.3)
+    Fable.Core (3.1.4)
+      FSharp.Core (>= 4.7)
     Fake.Core.CommandLineParsing (5.18.3)
       FParsec (>= 1.0.3)
       FSharp.Core (>= 4.7)
@@ -112,9 +114,6 @@ NUGET
       System.Net.Http (>= 4.3.4)
     Fantomas (3.1)
       FSharp.Compiler.Service (>= 33.0)
-    Farmer (0.1)
-      FSharp.Core (>= 4.7)
-      Newtonsoft.Json (>= 12.0.2)
     FParsec (1.0.3)
       FSharp.Core (>= 4.2.3)
       NETStandard.Library (>= 1.6.1)
@@ -736,6 +735,10 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
+    Thoth.Json.Net (3.6)
+      Fable.Core (>= 3.0 < 4.0)
+      FSharp.Core (>= 4.6.2)
+      Newtonsoft.Json (>= 11.0.2)
 
 GROUP client
 STORAGE: NONE

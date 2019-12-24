@@ -5,13 +5,11 @@
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="host.json">
+    <Content Include="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="local.settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-    </None>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <None Update="local.settings.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="paket.references" />
@@ -20,6 +18,7 @@
     <Compile Include="..\shared\Shared.fs" />
     <Compile Include="EventStore.fs" />
     <Compile Include="Function.fs" />
+    <Content Include=".funcignore" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

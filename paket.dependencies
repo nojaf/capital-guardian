@@ -32,4 +32,4 @@ nuget Fake.IO.FileSystem
 nuget Fake.JavaScript.Yarn
 nuget Fake.DotNet.Paket
 nuget Fantomas
-nuget Farmer 0.1.0
+nuget Thoth.Json.Net
