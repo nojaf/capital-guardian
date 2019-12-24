@@ -13,7 +13,10 @@ const EntrySchema = yup.object().shape({
     .required()
     .positive(),
   isIncome: yup.bool().required(),
-  created: yup.string().required().matches(/\d{4}-\d{2}-\d{2}/)
+  created: yup
+    .string()
+    .required()
+    .matches(/\d{4}-\d{2}-\d{2}/)
 });
 
 const EntryForm = ({ onSubmit, created }) => {

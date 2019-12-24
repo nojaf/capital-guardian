@@ -43,12 +43,8 @@ type Model =
       IsLoading: bool
       Toasts: Map<int, Toast> }
 
-let private baseUrl =
-#if DEBUG
-    "http://localhost:7071"
-#else
-    "<tdb>"
-#endif
+[<Emit("process.env.REACT_APP_BACKEND")>]
+let private baseUrl = jsNative
 
 let private decodeEvent = Decode.Auto.generateDecoder<Event>()
 let private encodeEvent = Encode.Auto.generateEncoder<Event>()

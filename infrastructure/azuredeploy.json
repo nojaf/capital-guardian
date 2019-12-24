@@ -1,0 +1,183 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "cdnProfileName": {
+      "type": "string"
+    },
+    "endpointName": {
+      "type": "string"
+    },
+    "endpointOriginHostName": {
+      "type": "string"
+    },
+    "functionappName": {
+      "type": "string"
+    },
+    "serverFarmName": {
+      "type": "string"
+    },
+    "applicationInsightsName": {
+      "type": "string"
+    },
+    "storageName": {
+      "type": "string"
+    },
+    "resourceGroupName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-08-01",
+      "dependsOn": [
+        "[parameters('applicationInsightsName')]",
+        "[parameters('serverFarmName')]",
+        "[parameters('storageName')]"
+      ],
+      "kind": "functionapp",
+      "location": "westeurope",
+      "name": "[parameters('functionappName')]",
+      "properties": {
+        "serverFarmId": "[parameters('serverFarmName')]",
+        "siteConfig": {
+          "alwaysOn": false,
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "DotNet"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "10.14.1"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageName'),';AccountKey=', listKeys(parameters('storageName'), '2017-10-01').keys[0].value)]"
+            },
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageName'),';AccountKey=', listKeys(parameters('storageName'), '2017-10-01').keys[0].value)]"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(concat('Microsoft.Insights/components/', parameters('applicationInsightsName'))).InstrumentationKey]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageName'), ';AccountKey=', listKeys(parameters('storageName'), '2017-10-01').keys[0].value)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[parameters('functionappName')]"
+            },
+            {
+              "name": "StorageAccountName",
+              "value": "[parameters('storageName')]"
+            },
+            {
+              "name": "StorageAccountKey",
+              "value": "[listKeys(parameters('storageName'), '2017-10-01').keys[0].value]"
+            }
+          ],
+          "metadata": [],
+          "cors": {
+            "allowedOrigins": [
+              "[concat('https://', parameters('endpointName'), '.azureedge.net')]"
+            ]
+          }
+        }
+      },
+      "resources": [],
+      "type": "Microsoft.Web/sites"
+    },
+    {
+      "apiVersion": "2018-02-01",
+      "location": "westeurope",
+      "name": "[parameters('serverFarmName')]",
+      "properties": {
+        "computeMode": "Dynamic",
+        "name": "[parameters('serverFarmName')]"
+      },
+      "sku": {
+        "capacity": 0,
+        "family": "Y",
+        "name": "Y1",
+        "size": "Y1",
+        "tier": "Dynamic"
+      },
+      "type": "Microsoft.Web/serverfarms"
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "kind": "web",
+      "location": "westeurope",
+      "name": "[parameters('applicationInsightsName')]",
+      "properties": {
+        "Application_Type": "web",
+        "name": "[parameters('applicationInsightsName')]"
+      },
+      "tags": {
+        "displayName": "AppInsightsComponent"
+      },
+      "type": "Microsoft.Insights/components"
+    },
+    {
+      "apiVersion": "2018-07-01",
+      "kind": "StorageV2",
+      "location": "westeurope",
+      "name": "[parameters('storageName')]",
+      "resources": [],
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "type": "Microsoft.Storage/storageAccounts"
+    },
+    {
+      "name": "[parameters('cdnProfileName')]",
+      "type": "Microsoft.Cdn/profiles",
+      "apiVersion": "2019-04-15",
+      "location": "West Europe",
+      "tags": {},
+      "sku": {
+        "name": "Premium_Verizon"
+      },
+      "properties": {},
+      "resources": [
+      ]
+    },
+    {
+      "name": "[concat(parameters('cdnProfileName'), concat('/', parameters('endpointName')))]",
+      "type": "Microsoft.Cdn/profiles/endpoints",
+      "apiVersion": "2019-04-15",
+      "location": "West Europe",
+      "tags": {
+      },
+      "properties": {
+        "originHostHeader": "[parameters('endpointOriginHostName')]",
+        "isHttpAllowed": false,
+        "isHttpsAllowed": true,
+        "optimizationType": "GeneralWebDelivery",
+        "origins": [
+          {
+            "name": "[replace(parameters('endpointOriginHostName'),'.', '-')]",
+            "properties": {
+              "hostName": "[parameters('endpointOriginHostName')]"
+            }
+          }
+        ]
+      },
+      "resources": [
+      ],
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', parameters('cdnProfileName'))]"
+      ]
+    }
+  ]
+}

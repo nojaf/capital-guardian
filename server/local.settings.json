@@ -1,7 +1,7 @@
 {
-  "IsEncrypted": true,
+  "IsEncrypted": false,
   "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "CfDJ8EBAfLaorNhLhINFA1oC9+FIMhDADg6ByDe/HNOKu7v6pgsIApxtowQXTMULlSrEzzyxsXdgv7u1eaE486/CTtW3uPidDai0BfNOBPEf0EkCrBKcrD1u8hTq9vT2MnQ2mg=="
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
   },
   "ConnectionStrings": {},
   "Host": {
