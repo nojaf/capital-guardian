@@ -41,6 +41,9 @@ The name of the parameter file should reflect the stage, f.ex `dev.json`.
 
 > dotnet fake run build.fsx -t AzureResources -- env=dev
 
+**Add a redirect rule to the CDN profile once it is created**
+This cannot be automated and should be added one time by hand as explained [here](https://medium.com/@antbutcher89/hosting-a-react-js-app-on-azure-blob-storage-azure-cdn-for-ssl-and-routing-8fdf4a48feeb).
+
 ### Client
 
 > dotnet fake run build.fsx -t DeployClient -- env=dev
