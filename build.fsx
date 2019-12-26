@@ -61,7 +61,7 @@ type AzureParameters =
                   Functionapp = get.Required.At ["parameters";"functionappName";"value"] Decode.string
                   ParameterFile = parameterFile })
 
-let private getParameters p =
+let private tryGetParameters p =
     let environment =
         p.Context.Arguments
         |> List.choose (fun a ->
@@ -71,9 +71,17 @@ let private getParameters p =
         |> List.tryHead
         |> Option.defaultValue "dev"
     let parameterFile = Path.combine infrastructurePath (sprintf "%s.json" environment)
-    File.readAsString parameterFile
-    |> Decode.fromString (AzureParameters.Decoder parameterFile)
-    |> function | Ok p -> p | Result.Error err -> failwithf "%A" err
+    if File.exists parameterFile then
+        File.readAsString parameterFile
+        |> Decode.fromString (AzureParameters.Decoder parameterFile)
+        |> function | Ok p -> p | Result.Error err -> failwithf "%A" err
+        |> Some
+    else
+        None
+
+let private getParameters p =
+    tryGetParameters p
+    |> function | Some p -> p | None -> failwithf "Could not read parameters from %A" p
 
 Target.create "Clean" (fun _ ->
     Shell.rm_rf (clientPath </> ".fable")
@@ -89,8 +97,8 @@ Target.create "Paket" (fun _ ->
     Paket.``generate load script``())
 
 Target.create "BuildClient" (fun p ->
-    let parameters = getParameters p
-    Environment.setEnvironVar "REACT_APP_BACKEND" (sprintf "https://%s.azurewebsites.net" parameters.Functionapp)
+    tryGetParameters p
+    |> Option.iter (fun parameters -> Environment.setEnvironVar "REACT_APP_BACKEND" (sprintf "https://%s.azurewebsites.net" parameters.Functionapp))
 
     Yarn.exec "build" setYarnWorkingDirectory)
 
