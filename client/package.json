@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.4.1",
-    "fable-compiler": "^2.4.9",
+    "fable-compiler": "^2.4.12",
     "fable-splitter": "^2.1.11",
     "node-sass": "^4.13.0",
     "react": "^16.11.0",
