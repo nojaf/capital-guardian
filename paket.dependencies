@@ -7,9 +7,9 @@ storage:none
 source: https://api.nuget.org/v3/index.json
 framework: netcoreapp3.1
 
-nuget CosmoStore.TableStorage 3.0.0
+nuget CosmoStore.TableStorage
 nuget FSharp.Core
-nuget Microsoft.NET.Sdk.Functions 3.0.2
+nuget Microsoft.NET.Sdk.Functions
 nuget Thoth.Json.Net
 
 group client
@@ -31,5 +31,5 @@ nuget Fake.Core.Target
 nuget Fake.IO.FileSystem
 nuget Fake.JavaScript.Yarn
 nuget Fake.DotNet.Paket
-nuget Fantomas
+nuget Fantomas 3.2.0-beta-001
 nuget Thoth.Json.Net
