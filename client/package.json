@@ -13,7 +13,7 @@
     "reactstrap": "8.2.0",
     "prettier": "1.19.1",
     "prop-types": "15.7.2",
-    "react-hook-form": "4.0.0",
+    "react-hook-form": "4.2.0",
     "react-switch": "5.0.1",
     "yup": "0.28.0",
     "hookrouter": "1.2.3",
