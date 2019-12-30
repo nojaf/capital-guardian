@@ -11205,10 +11205,10 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
-use-breakpoint@1.0.31:
-  version "1.0.31"
-  resolved "https://registry.yarnpkg.com/use-breakpoint/-/use-breakpoint-1.0.31.tgz#dfc15a6318b8b60194e18789e4a0059ad3998c91"
-  integrity sha512-a65HGw5Ljn3M8dfGoZZodQqTI8eIxDZThf+LS/4JGpBSFjmGQfnIteRoa/XX52Ndo5MP+c1PbwTvH8Rg2JrJhg==
+use-breakpoint@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/use-breakpoint/-/use-breakpoint-1.1.0.tgz#19a5bb751c34eb172264800e707f51e7c73c8d12"
+  integrity sha512-kfFI7gA0+bNh7+jZuy/5EytoAwT2fCF10inTG0KX3TDXAn1hNlfRdH268cQKWr31KtBGn6rTUHMUxglYv6G6vw==
 
 use@^3.1.0:
   version "3.1.1"
