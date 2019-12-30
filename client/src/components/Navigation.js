@@ -51,7 +51,6 @@ const Navigation = () => {
         <Nav className="mr-auto text-primary" navbar>
           <Link route={"/"}>Home</Link>
           <Link route={"/overview"}>Overview per month</Link>
-          <Link route={"/rules"}>Rules</Link>
           <Link route={'/spread'}>Spread over months</Link>
         </Nav>
         <NavbarText>logout</NavbarText>

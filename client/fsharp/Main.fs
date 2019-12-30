@@ -12,13 +12,18 @@ open Thoth.Json
 module Projections =
     let isInMonth month year (a: DateTime) = a.Year = year && a.Month = month
 
+    let isNotCancelledEventChecker events =
+        let cancelled = List.choose (function | Event.CancelTransaction id -> Some id | _ -> None) events
+        fun id -> not(List.contains id cancelled)
+
     let calculateBalance month year events =
         let filter = isInMonth month year
+        let isNotCancelled = isNotCancelledEventChecker events
         events
         |> List.fold (fun acc ev ->
             match ev with
-            | AddExpense({ Amount = amount; Created = created }) when (filter created) -> acc - amount
-            | AddIncome({ Amount = amount; Created = created }) when (filter created) -> acc + amount
+            | AddExpense({ Id = id; Amount = amount; Created = created }) when (filter created && isNotCancelled id) -> acc - amount
+            | AddIncome({ Id = id; Amount = amount; Created = created }) when (filter created && isNotCancelled id) -> acc + amount
             | _ -> acc) 0.
 
 let private f g = System.Func<_, _>(g)
@@ -43,6 +48,8 @@ type Msg =
     | ShowToast of Toast
     | ClearToast of int
     | SpreadOver of SpreadDetails
+    | CancelTransaction of Id
+    | CloneTransaction of Id
 
 type Model =
     { Events: Event list
@@ -142,9 +149,40 @@ let internal update (msg: Msg) (model: Model) =
                 let date = details.Start.AddMonths(i - 1)
                 Event.AddExpense({ Name = name
                                    Amount = expensePerPiece
-                                   Rule = None
+                                   Id = newId()
                                    Created = date }))
         { model with Events = events @ model.Events }, postEventsCommand events
+
+    | CancelTransaction id ->
+        let event = Event.CancelTransaction(id)
+        let events = event::model.Events
+        { model with Events = events }, postEventsCommand [event]
+
+    | CloneTransaction id ->
+        let updateTransaction t = { t with
+                                        Created = DateTime.Now
+                                        Id = newId() }
+        let event =
+            model.Events
+            |> List.choose (fun e ->
+                match e with
+                | Event.AddExpense te when (te.Id = id) ->
+                    updateTransaction te
+                    |> Event.AddExpense
+                    |> Some
+                | Event.AddIncome ti when (ti.Id = id) ->
+                    updateTransaction ti
+                    |> Event.AddIncome
+                    |> Some
+                | _ -> None
+            )
+            |> List.tryHead
+
+        let events =
+            event
+            |> function | Some e -> e::model.Events | None -> model.Events
+
+        { model with Events = events }, postEventsCommand (Option.toList event)
 
     | _ -> failwithf "Msg %A not implemented" msg
 
@@ -201,27 +239,29 @@ let useBalance month year =
 let useEntries month year =
     let { Events = events } = useModel()
 
+    let isNotCancelled = Projections.isNotCancelledEventChecker events
     let filter = Projections.isInMonth month year
 
     let sortMapAndToArray (input: Transaction seq) =
         input
         |> Seq.sortBy (fun ai -> ai.Created)
         |> Seq.map (fun ai ->
-            {| name = ai.Name
+            {| id = ai.Id
+               name = ai.Name
                amount = ai.Amount |})
         |> Seq.toArray
 
     let income =
         events
         |> Seq.choose (function
-            | Event.AddIncome(ai) when (filter ai.Created) -> Some ai
+            | Event.AddIncome(ai) when (filter ai.Created && isNotCancelled ai.Id) -> Some ai
             | _ -> None)
         |> sortMapAndToArray
 
     let expenses =
         events
         |> Seq.choose (function
-            | Event.AddExpense(ae) when (filter ae.Created) -> Some ae
+            | Event.AddExpense(ae) when (filter ae.Created && isNotCancelled ae.Id) -> Some ae
             | _ -> None)
         |> sortMapAndToArray
 
@@ -236,7 +276,7 @@ let private parseDate (value:string) =
     |> Array.map (System.Int32.Parse)
     |> fun pieces ->
         match pieces with
-        | [| year; month; day |] -> DateTime(year, month, day)
+        | [| year; month; day |] -> DateTime(year, month, day, 12,0,0)
         | _ -> DateTime.Now
 
 let useAddEntry() =
@@ -245,9 +285,9 @@ let useAddEntry() =
         let createdDate = parseDate input.created
 
         let entry =
-            { Name = input.name
+            { Id = newId()
+              Name = input.name
               Amount = input.amount
-              Rule = None
               Created = createdDate }
 
         let msg =
@@ -328,4 +368,14 @@ let useSpreadOverMonths() =
                          Start = parseDate input.start
                          Pieces = input.pieces })
         |> dispatch
+    |> f
+
+let useCancelEvent() =
+    let dispatch = useDispatch()
+    fun (id:Id) -> Msg.CancelTransaction(id) |> dispatch
+    |> f
+
+let useCloneEvent() =
+    let dispatch = useDispatch()
+    fun (id:Id) -> Msg.CloneTransaction(id) |> dispatch
     |> f

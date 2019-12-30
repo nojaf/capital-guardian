@@ -92,6 +92,7 @@ Target.create "BuildServer" (fun _ ->
     DotNet.build (fun config -> { config with Configuration = DotNet.BuildConfiguration.Release })
         (serverPath </> "server.fsproj"))
 
+// dotnet fake run build.fsx -t Build -- env=dev
 Target.create "Build" ignore
 
 Target.create "Watch" (fun _ ->
@@ -133,6 +134,8 @@ Target.create "Watch" (fun _ ->
     Async.Parallel [ runAzureFunction; compileFable ]
     |> Async.Ignore
     |> Async.RunSynchronously)
+
+Target.create "Tests" (fun _ -> Yarn.exec "test" setYarnWorkingDirectory)
 
 Target.create "Format" (fun _ ->
     let fantomasConfig =
