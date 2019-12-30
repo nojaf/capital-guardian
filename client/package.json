@@ -24,7 +24,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "fable": "fable-splitter fsharp/Main.fsx -o src/bin",
+    "fable": "fable-splitter fsharp/client.fsproj --allFiles -o src/bin",
     "format": "prettier ./src/**/*.js --write",
     "prebuild": "yarn fable"
   },

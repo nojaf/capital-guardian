@@ -1,5 +1,4 @@
-#load "../../.paket/load/netstandard2.0/client/client.group.fsx"
-#load "../../shared/Shared.fs"
+module Main
 
 open Elmish
 open Fable.Core
@@ -29,6 +28,12 @@ type Toast =
       Title: string
       Body: string }
 
+type SpreadDetails =
+    { Start: DateTime
+      Name: string
+      Amount: float
+      Pieces: int }
+
 type Msg =
     | AddIncome of Transaction
     | AddExpense of Transaction
@@ -37,6 +42,7 @@ type Msg =
     | NetworkError of exn
     | ShowToast of Toast
     | ClearToast of int
+    | SpreadOver of SpreadDetails
 
 type Model =
     { Events: Event list
@@ -75,7 +81,7 @@ let private postEvents events =
           Title = "Saved"
           Body = "☁ persisted events to the cloud." })
 
-let private init _ =
+let internal init _ =
     { IsLoading = true
       Events = []
       Toasts = Map.empty }, Cmd.OfPromise.either fetchEvents () EventsLoaded NetworkError
@@ -92,7 +98,10 @@ let private nextKey map =
 let private hideToastIn toastId miliSecondes dispatch =
     JS.setTimeout (fun () -> dispatch (Msg.ClearToast toastId)) miliSecondes |> ignore
 
-let private update (msg: Msg) (model: Model) =
+let private postEventsCommand events =
+    Cmd.OfPromise.either postEvents events ShowToast NetworkError
+
+let internal update (msg: Msg) (model: Model) =
     JS.console.log msg
     match msg with
     | EventsLoaded events ->
@@ -101,13 +110,11 @@ let private update (msg: Msg) (model: Model) =
               IsLoading = false }, Cmd.none
     | AddIncome transaction ->
         let event = Event.AddIncome transaction
-        { model with Events = event :: model.Events },
-        Cmd.OfPromise.either postEvents [ event ] ShowToast NetworkError
+        { model with Events = event :: model.Events }, postEventsCommand [ event ]
 
     | AddExpense transaction ->
         let event = Event.AddExpense transaction
-        { model with Events = event :: model.Events },
-        Cmd.OfPromise.either postEvents [ event ] ShowToast NetworkError
+        { model with Events = event :: model.Events }, postEventsCommand [ event ]
 
     | ShowToast(toast) ->
         let toastId = nextKey model.Toasts
@@ -125,6 +132,19 @@ let private update (msg: Msg) (model: Model) =
                 ({ Title = "Network Error"
                    Icon = "danger"
                    Body = ne.Message }))
+
+    | SpreadOver details ->
+        let expensePerPiece = Math.Round((details.Amount / (float)details.Pieces), 2)
+        let events =
+            [1..details.Pieces]
+            |> List.map (fun i ->
+                let name = sprintf "%s (%i/%i)" details.Name i details.Pieces
+                let date = details.Start.AddMonths(i - 1)
+                Event.AddExpense({ Name = name
+                                   Amount = expensePerPiece
+                                   Rule = None
+                                   Created = date }))
+        { model with Events = events @ model.Events }, postEventsCommand events
 
     | _ -> failwithf "Msg %A not implemented" msg
 

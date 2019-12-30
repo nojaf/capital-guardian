@@ -1,0 +1,6 @@
+group client
+Fable.React
+Fable.Elmish
+Fable.Promise
+Fable.Fetch
+Thoth.Json

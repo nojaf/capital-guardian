@@ -17,18 +17,7 @@ let clientPath = Path.getFullName "./client"
 let setYarnWorkingDirectory (args: Yarn.YarnParams) = { args with WorkingDirectory = clientPath }
 let serverPath = Path.getFullName "./server"
 let sharedPath = Path.getFullName "./shared"
-
 let infrastructurePath = Path.getFullName "./infrastructure"
-
-module Paket =
-    let private runCmd cmd args =
-        CreateProcess.fromRawCommand cmd args
-        |> Proc.run
-        |> ignore
-
-    let private paket args = runCmd "dotnet" ("paket" :: args)
-
-    let ``generate load script``() = paket [ "generate-load-scripts"; "-f"; "netstandard2.0"; "-t"; "fsx" ]
 
 module Azure =
     let az parameters =
@@ -91,10 +80,7 @@ Target.create "Clean" (fun _ ->
 
 Target.create "Yarn" (fun _ -> Yarn.installPureLock setYarnWorkingDirectory)
 
-Target.create "Paket" (fun _ ->
-    Paket.restore (fun p -> { p with ToolType = ToolType.CreateLocalTool() })
-    Shell.rm_rf (".paket" </> "load")
-    Paket.``generate load script``())
+Target.create "Paket" (fun _ -> Paket.restore (fun p -> { p with ToolType = ToolType.CreateLocalTool() }))
 
 Target.create "BuildClient" (fun p ->
     tryGetParameters p
