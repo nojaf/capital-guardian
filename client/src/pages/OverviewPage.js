@@ -2,6 +2,7 @@ import React from "react";
 import { useOverviewPerMonth } from "../bin/Main";
 import { Table } from "reactstrap";
 import { A } from "hookrouter";
+import { Money } from "../components";
 
 const OverviewPage = () => {
   const data = useOverviewPerMonth();
@@ -12,7 +13,7 @@ const OverviewPage = () => {
           <td>
             <A href={`/${yearName}/${month}`}>{name}</A>
           </td>
-          <td>&euro;{balance}</td>
+          <td><Money amount={balance}/></td>
         </tr>
       );
     });
@@ -31,7 +32,9 @@ const OverviewPage = () => {
             {rows}
             <tr className={"font-weight-bold"}>
               <td className={"border-top border-dark"}>Total</td>
-              <td className={"border-top border-dark"}>&euro;{balance}</td>
+              <td className={"border-top border-dark"}>
+                <Money amount={balance} />
+              </td>
             </tr>
           </tbody>
         </Table>

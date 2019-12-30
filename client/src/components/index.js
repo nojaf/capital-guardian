@@ -5,3 +5,4 @@ export { default as EntryForm } from "./EntryForm";
 export { default as ToggleButton } from "./ToggleButton";
 export { default as Navigation } from "./Navigation";
 export { default as ToastContainer } from "./ToastContainer";
+export {default as Money} from './Money';

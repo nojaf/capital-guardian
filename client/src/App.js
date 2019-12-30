@@ -1,7 +1,13 @@
 import React from "react";
 import { ElmishCapture } from "./bin/Main";
 import { Header, Loader, Navigation, ToastContainer } from "./components";
-import { HomePage, MonthPage, NotFoundPage, OverviewPage } from "./pages";
+import {
+  HomePage,
+  MonthPage,
+  NotFoundPage,
+  OverviewPage,
+  SpreadPage
+} from "./pages";
 import { useRoutes } from "hookrouter";
 import { Container } from "reactstrap";
 import { useXsOrSm } from "./hooks/breakpoints";
@@ -11,7 +17,8 @@ const routes = {
   "/overview": () => <OverviewPage />,
   "/:year/:month": ({ year, month }) => (
     <MonthPage year={parseInt(year)} month={parseInt(month)} />
-  )
+  ),
+  "/spread": () => <SpreadPage />
 };
 
 const App = () => {

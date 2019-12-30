@@ -231,16 +231,18 @@ let useIsLoading() =
     let { IsLoading = isLoading } = useModel()
     isLoading
 
+let private parseDate (value:string) =
+    value.Split([| '-' |])
+    |> Array.map (System.Int32.Parse)
+    |> fun pieces ->
+        match pieces with
+        | [| year; month; day |] -> DateTime(year, month, day)
+        | _ -> DateTime.Now
+
 let useAddEntry() =
     let dispatch = useDispatch()
     fun (input: {| name: string; amount: Amount; isIncome: bool; created: string |}) ->
-        let createdDate =
-            input.created.Split([| '-' |])
-            |> Array.map (System.Int32.Parse)
-            |> fun pieces ->
-                match pieces with
-                | [| year; month; day |] -> DateTime(year, month, day)
-                | _ -> DateTime.Now
+        let createdDate = parseDate input.created
 
         let entry =
             { Name = input.name
@@ -302,7 +304,11 @@ let useOverviewPerMonth() =
 let useDefaultCreateDate month year =
     let today = DateTime.Now
     if today.Month = month && today.Year = year then today.ToString("dd") else "01"
-    |> sprintf "%i-%i-%s" year month
+    |> sprintf "%02i-%02i-%s" year month
+
+let useFirstOfCurrentMonthDate () =
+    let today = DateTime.Now
+    sprintf "%02i-%02i-01" today.Year today.Month
 
 let useToasts() =
     let { Toasts = toasts } = useModel()
@@ -313,3 +319,13 @@ let useToasts() =
            title = t.Title
            icon = t.Icon
            body = t.Body |})
+
+let useSpreadOverMonths() =
+    let dispatch = useDispatch()
+    fun (input: {| name: string; amount: Amount; start: string; pieces: int |}) ->
+        Msg.SpreadOver({ Name = input.name
+                         Amount = input.amount
+                         Start = parseDate input.start
+                         Pieces = input.pieces })
+        |> dispatch
+    |> f
