@@ -11,6 +11,8 @@ import {
 import NavbarText from "reactstrap/lib/NavbarText";
 import { A, usePath } from "hookrouter";
 import { useXsOrSm } from "../hooks/breakpoints";
+import { useAuth0 } from "../react-auth0-spa";
+import { currentDomain } from "../utils";
 
 const Link = ({ route, children }) => {
   const path = usePath();
@@ -27,6 +29,10 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   const showBrand = useXsOrSm();
+  const { logout } = useAuth0();
+  const logoutHandler = () => {
+    logout({ returnTo: currentDomain });
+  };
 
   const NavbarInner = ({ children }) =>
     showBrand ? (
@@ -51,9 +57,11 @@ const Navigation = () => {
         <Nav className="mr-auto text-primary" navbar>
           <Link route={"/"}>Home</Link>
           <Link route={"/overview"}>Overview per month</Link>
-          <Link route={'/spread'}>Spread over months</Link>
+          <Link route={"/spread"}>Spread over months</Link>
         </Nav>
-        <NavbarText>logout</NavbarText>
+        <NavbarText className={"pointer"} onClick={logoutHandler}>
+          logout
+        </NavbarText>
       </Collapse>
     </NavbarInner>
   );

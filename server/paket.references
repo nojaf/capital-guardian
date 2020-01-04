@@ -3,3 +3,4 @@ FSharp.Core
 Microsoft.NET.Sdk.Functions
 CosmoStore.TableStorage
 Thoth.Json.Net
+Microsoft.IdentityModel.Protocols.OpenIdConnect

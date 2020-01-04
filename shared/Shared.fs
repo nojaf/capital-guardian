@@ -27,10 +27,10 @@ let sampleEvents =
     let now = DateTime.Now
 
     [ AddExpense
-          ({ Id = newId()
-             Name = "Rent July"
-             Amount = 1000.
-             Created = now })
+        ({ Id = newId()
+           Name = "Rent July"
+           Amount = 1000.
+           Created = now })
       AddIncome
           ({ Id = newId()
              Name = "Wage July"

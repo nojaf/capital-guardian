@@ -2,6 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "resourceGroupName": {
+      "type": "string"
+    },
     "cdnProfileName": {
       "type": "string"
     },
@@ -23,7 +26,16 @@
     "storageName": {
       "type": "string"
     },
-    "resourceGroupName": {
+    "auth0Domain": {
+      "type": "string"
+    },
+    "auth0Audience": {
+      "type": "string"
+    },
+    "auth0ClientId": {
+      "type": "string"
+    },
+    "auth0Scope": {
       "type": "string"
     }
   },
@@ -84,6 +96,14 @@
             {
               "name": "StorageAccountKey",
               "value": "[listKeys(parameters('storageName'), '2017-10-01').keys[0].value]"
+            },
+            {
+              "name": "Auth0Domain",
+              "value": "[parameters('auth0Domain')]"
+            },
+            {
+              "name": "Auth0Audience",
+              "value": "https://capital-guardian.nojaf.com"
             }
           ],
           "metadata": [],

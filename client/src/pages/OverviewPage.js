@@ -13,7 +13,9 @@ const OverviewPage = () => {
           <td>
             <A href={`/${yearName}/${month}`}>{name}</A>
           </td>
-          <td><Money amount={balance}/></td>
+          <td>
+            <Money amount={balance} />
+          </td>
         </tr>
       );
     });

@@ -38,7 +38,11 @@ type AzureParameters =
       StorageAccount:string
       CdnEndpoint: string
       CdnProfile: string
-      Functionapp: string
+      FunctionApp: string
+      Auth0Domain: string
+      Auth0Audience: string
+      Auth0ClientId: string
+      Auth0Scope: string
       ParameterFile: string }
 
     with static member Decoder parameterFile =
@@ -47,7 +51,11 @@ type AzureParameters =
                   StorageAccount = get.Required.At ["parameters";"storageName";"value"] Decode.string
                   CdnEndpoint =  get.Required.At ["parameters";"endpointName";"value"] Decode.string
                   CdnProfile =  get.Required.At ["parameters";"cdnProfileName";"value"] Decode.string
-                  Functionapp = get.Required.At ["parameters";"functionappName";"value"] Decode.string
+                  FunctionApp = get.Required.At ["parameters";"functionappName";"value"] Decode.string
+                  Auth0Domain = get.Required.At ["parameters"; "auth0Domain"; "value"] Decode.string
+                  Auth0Audience = get.Required.At ["parameters"; "auth0Audience"; "value"] Decode.string
+                  Auth0ClientId = get.Required.At ["parameters"; "auth0ClientId"; "value"] Decode.string
+                  Auth0Scope = get.Required.At ["parameters"; "auth0Scope"; "value"] Decode.string
                   ParameterFile = parameterFile })
 
 let private tryGetParameters p =
@@ -84,7 +92,12 @@ Target.create "Paket" (fun _ -> Paket.restore (fun p -> { p with ToolType = Tool
 
 Target.create "BuildClient" (fun p ->
     tryGetParameters p
-    |> Option.iter (fun parameters -> Environment.setEnvironVar "REACT_APP_BACKEND" (sprintf "https://%s.azurewebsites.net" parameters.Functionapp))
+    |> Option.iter (fun parameters ->
+        Environment.setEnvironVar "REACT_APP_BACKEND" (sprintf "https://%s.azurewebsites.net" parameters.FunctionApp)
+        Environment.setEnvironVar "REACT_APP_AUTH0_DOMAIN" parameters.Auth0Domain
+        Environment.setEnvironVar "REACT_APP_AUTH0_CIENT_ID" parameters.Auth0ClientId
+        Environment.setEnvironVar "REACT_APP_AUTH0_AUDIENCE" parameters.Auth0Audience
+        Environment.setEnvironVar "REACT_APP_AUTH0_SCOPE" parameters.Auth0Scope)
 
     Yarn.exec "build" setYarnWorkingDirectory)
 
@@ -135,7 +148,9 @@ Target.create "Watch" (fun _ ->
     |> Async.Ignore
     |> Async.RunSynchronously)
 
-Target.create "Tests" (fun _ -> Yarn.exec "test" setYarnWorkingDirectory)
+Target.create "Tests" (fun _ ->
+    Environment.setEnvironVar "CI" "true"
+    Yarn.exec "test" setYarnWorkingDirectory)
 
 Target.create "Format" (fun _ ->
     let fantomasConfig =
@@ -143,7 +158,7 @@ Target.create "Format" (fun _ ->
               ReorderOpenDeclaration = true
               KeepNewlineAfter = true }
 
-    let fsharpFiles = !!(serverPath </> "*.fs") ++ (clientPath </> "fsharp" </> "*.fsx") ++ (sharedPath </> "*.fs")
+    let fsharpFiles = !!(serverPath </> "*.fs") ++ (clientPath </> "fsharp" </> "*.fs") ++ (sharedPath </> "*.fs")
 
     fsharpFiles
     |> formatCode fantomasConfig
@@ -187,7 +202,7 @@ Target.create "DeployClient" (fun p ->
 
 Target.create "DeployServer" (fun p ->
     let parameters = getParameters p
-    Azure.func ["azure";"functionapp";"publish"; parameters.Functionapp; "--csharp"]
+    Azure.func ["azure";"functionapp";"publish"; parameters.FunctionApp; "--csharp"]
 )
 
 Target.create "Default" ignore

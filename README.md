@@ -25,6 +25,10 @@ The following environment variables should be set before running the `Watch` tar
 - StorageAccountKey
 - StorageAccountName
 - REACT_APP_BACKEND
+- Auth0Domain
+- Auth0Audience
+- REACT_APP_AUTH0_CIENT_ID
+- REACT_APP_AUTH0_SCOPE
 
 > dotnet fake run build.fsx -t Watch
 

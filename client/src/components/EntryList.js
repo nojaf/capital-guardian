@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Table, Button } from "reactstrap";
-import {Money} from "./index";
+import { Money } from "./index";
 
 const EntryList = ({ entries, onDelete, onClone }) => {
   const rows = entries.map((e, i) => {
@@ -25,7 +25,9 @@ const EntryList = ({ entries, onDelete, onClone }) => {
             <i className="far fa-clone"></i>
           </Button>
         </td>
-        <td><Money amount={e.amount}/></td>
+        <td>
+          <Money amount={e.amount} />
+        </td>
       </tr>
     );
   });

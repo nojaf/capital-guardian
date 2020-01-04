@@ -15,6 +15,7 @@
     <Content Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authentication.fs" />
     <Compile Include="..\shared\Shared.fs" />
     <Compile Include="EventStore.fs" />
     <Compile Include="Function.fs" />

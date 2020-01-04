@@ -11,6 +11,7 @@ nuget CosmoStore.TableStorage
 nuget FSharp.Core
 nuget Microsoft.NET.Sdk.Functions
 nuget Thoth.Json.Net
+nuget Microsoft.IdentityModel.Protocols.OpenIdConnect
 
 group client
 storage:none

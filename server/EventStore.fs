@@ -10,9 +10,6 @@ open Thoth.Json.Net
 let private storageAccountName = Environment.GetEnvironmentVariable("StorageAccountName")
 let private storageAuthKey = Environment.GetEnvironmentVariable("StorageAccountKey")
 let private config = TableStorage.Configuration.CreateDefault storageAccountName storageAuthKey
-
-let private streamName = "CapitalGuardian"
-
 let private eventStore = TableStorage.EventStore.getEventStore config
 
 let private encodeEvent = Encode.Auto.generateEncoder<Event>()
@@ -30,16 +27,15 @@ let private createEvent event =
       Data = encodeEvent event
       Metadata = None }
 
-let appendEvents (events: Event list) =
+let appendEvents userId (events: Event list) =
     let cosmoEvents = List.map createEvent events
     task {
-        let! _ = eventStore.AppendEvents streamName Any cosmoEvents
+        let! _ = eventStore.AppendEvents userId Any cosmoEvents
         return () }
 
-
-let getEvents() =
+let getEvents userId =
     task {
-        let! cosmoEvents = eventStore.GetEvents streamName AllEvents
+        let! cosmoEvents = eventStore.GetEvents userId AllEvents
         let events = List.map (fun (ce: EventRead<JsonValue, _>) -> ce.Data) cosmoEvents
         return events
     }

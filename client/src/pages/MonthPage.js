@@ -2,13 +2,13 @@ import React from "react";
 import { number } from "prop-types";
 import { EntryList, Loader, EntryForm } from "../components";
 import {
-    useEntries,
-    useIsLoading,
-    useAddEntry,
-    useBalance,
-    useDefaultCreateDate,
-    useCancelEvent,
-    useCloneEvent
+  useEntries,
+  useIsLoading,
+  useAddEntry,
+  useBalance,
+  useDefaultCreateDate,
+  useCancelEvent,
+  useCloneEvent
 } from "../bin/Main";
 import { Alert } from "reactstrap";
 
@@ -27,9 +27,17 @@ const MonthPage = ({ month, year }) => {
     <div>
       <div className={"my-4"}>
         <h2>Income</h2>
-        <EntryList entries={income} onDelete={cancelEvent} onClone={cloneEvent} />
+        <EntryList
+          entries={income}
+          onDelete={cancelEvent}
+          onClone={cloneEvent}
+        />
         <h2>Expenses</h2>
-        <EntryList entries={expenses} onDelete={cancelEvent} onClone={cloneEvent} />
+        <EntryList
+          entries={expenses}
+          onDelete={cancelEvent}
+          onClone={cloneEvent}
+        />
       </div>
       <Alert color={balanceColor}>
         Balance{" "}
