@@ -354,4 +354,5 @@ MigrationBackup/
 /farmer-deploy.bat
 /farmer-deploy.json
 watch.ps1
-infrastructure/dev.json
+infrastructure/*.json
+!infrastructure/azuredeploy.json
