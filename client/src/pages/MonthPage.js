@@ -1,6 +1,6 @@
 import React from "react";
 import { number } from "prop-types";
-import { EntryList, Loader, EntryForm } from "../components";
+import { EntryList, Loader, EntryForm, Money } from "../components";
 import {
   useEntries,
   useIsLoading,
@@ -41,7 +41,9 @@ const MonthPage = ({ month, year }) => {
       </div>
       <Alert color={balanceColor}>
         Balance{" "}
-        <span className={"float-right font-weight-bold"}>&euro;{balance}</span>
+        <span className={"float-right font-weight-bold"}>
+          <Money amount={balance} />
+        </span>
       </Alert>
       <hr />
       <div>
