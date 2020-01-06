@@ -14,6 +14,10 @@
     "endpointOriginHostName": {
       "type": "string"
     },
+    "endPointDomainName": {
+      "type": "string",
+      "defaultValue": ""
+    },
     "functionappName": {
       "type": "string"
     },
@@ -193,10 +197,21 @@
           }
         ]
       },
-      "resources": [
-      ],
+      "resources": [],
       "dependsOn": [
         "[resourceId('Microsoft.Cdn/profiles', parameters('cdnProfileName'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('endPointDomainName')))]",
+      "name": "[concat(parameters('cdnProfileName'), concat('/', parameters('endpointName')), '/dns')]",
+      "type": "Microsoft.Cdn/profiles/endpoints/customDomains",
+      "apiVersion": "2019-04-15",
+      "properties": {
+        "hostName": "[parameters('endPointDomainName')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles/endpoints', parameters('cdnProfileName'), parameters('endpointName'))]"
       ]
     }
   ]
