@@ -113,7 +113,8 @@
           "metadata": [],
           "cors": {
             "allowedOrigins": [
-              "[concat('https://', parameters('endpointName'), '.azureedge.net')]"
+              "[concat('https://', parameters('endpointName'), '.azureedge.net')]",
+              "[concat('https://', parameters('endPointDomainName'))]"
             ]
           }
         }
