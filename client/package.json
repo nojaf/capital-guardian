@@ -14,7 +14,7 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-hook-form": "4.9.3",
-    "react-scripts": "3.3.1",
+    "react-scripts": "3.4.0",
     "react-switch": "5.0.1",
     "reactstrap": "8.4.1",
     "use-breakpoint": "1.1.0",
