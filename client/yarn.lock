@@ -9711,10 +9711,10 @@ react-error-overlay@^6.0.6:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.6.tgz#ac4d9dc4c1b5c536c2c312bf66aa2b09bfa384e2"
   integrity sha512-Yzpno3enVzSrSCnnljmr4b/2KUQSMZaPuqmS26t9k4nW7uwJk6STWmH9heNjPuvqUTO3jOSPkHoKgO4+Dw7uIw==
 
-react-hook-form@4.10.0:
-  version "4.10.0"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-4.10.0.tgz#e27f8525887d485fc57cd6e7e2c35b0f5c73094d"
-  integrity sha512-L7jkepQJ2bnfvpXJxD9Zli6PZjZkdv4K78xK3d/BuC4j7vFn/a/WxqLGgEm6NVheBIV5eTHoqAvncV9dnumqNA==
+react-hook-form@4.10.2:
+  version "4.10.2"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-4.10.2.tgz#fb56160c302a0e2b595ef78cc8946c9dc9cb776a"
+  integrity sha512-Ule/KqHBwUvuubqGC4WDvOARS6VjlULSS+WHspgQ5FhFKR4ytHDc4AMpjVfnv+Wbz2TEbMp9/ZHmuZsUksPCiA==
 
 react-is@^16.8.1, react-is@^16.8.4:
   version "16.10.1"
@@ -12259,10 +12259,10 @@ yargs@^7.0.0:
     y18n "^3.2.1"
     yargs-parser "^5.0.0"
 
-yup@0.28.2:
-  version "0.28.2"
-  resolved "https://registry.yarnpkg.com/yup/-/yup-0.28.2.tgz#614b7042b5537dc75633f9946bca65dd81e1a3e7"
-  integrity sha512-40cEt9uZvPWUnN6Q4XlRZO1MCjc/2HvI3UMzv+WSRGqibOzWY7Hc+3dbKTqmN5xn7Ar8LdtWzn/PtjdrKmo7NA==
+yup@0.28.3:
+  version "0.28.3"
+  resolved "https://registry.yarnpkg.com/yup/-/yup-0.28.3.tgz#1ca607405a8adf24a5ac51f54bd09d527555f0ba"
+  integrity sha512-amVkCgFWe5bGjrrUiODkbIzrSwtB8JpZrQYSrfj2YsbRdrV+tn9LquWdZDlfOx2HXyfEA8FGnlwidE/bFDxO7Q==
   dependencies:
     "@babel/runtime" "^7.8.7"
     fn-name "~3.0.0"
