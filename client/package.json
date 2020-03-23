@@ -9,7 +9,7 @@
     "fable-splitter": "^2.1.11",
     "hookrouter": "1.2.3",
     "node-sass": "^4.13.0",
-    "prettier": "2.0.0",
+    "prettier": "2.0.2",
     "prop-types": "15.7.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
