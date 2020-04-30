@@ -18,7 +18,7 @@
     "react-switch": "5.0.1",
     "reactstrap": "8.4.1",
     "use-breakpoint": "1.1.1",
-    "yup": "0.28.3"
+    "yup": "0.28.4"
   },
   "scripts": {
     "start": "react-scripts start",
