@@ -356,3 +356,4 @@ MigrationBackup/
 watch.ps1
 infrastructure/*.json
 !infrastructure/azuredeploy.json
+https.ps1
