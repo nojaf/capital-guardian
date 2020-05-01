@@ -5,20 +5,20 @@
   "dependencies": {
     "@auth0/auth0-spa-js": "1.7.0",
     "bootstrap": "^4.4.1",
-    "fable-compiler": "^2.4.12",
+    "fable-compiler": "^2.4.18",
     "fable-splitter": "^2.1.11",
     "hookrouter": "1.2.3",
     "node-sass": "^4.13.0",
-    "prettier": "1.19.1",
+    "prettier": "2.0.3",
     "prop-types": "15.7.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
-    "react-hook-form": "4.7.0",
-    "react-scripts": "3.3.1",
+    "react-hook-form": "5.5.0",
+    "react-scripts": "3.4.1",
     "react-switch": "5.0.1",
     "reactstrap": "8.4.1",
-    "use-breakpoint": "1.1.0",
-    "yup": "0.28.1"
+    "use-breakpoint": "1.1.1",
+    "yup": "0.28.4"
   },
   "scripts": {
     "start": "react-scripts start",
