@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@auth0/auth0-spa-js": "1.7.0",
+    "@auth0/auth0-spa-js": "1.8.1",
     "bootstrap": "^4.4.1",
     "fable-compiler": "^2.4.18",
     "fable-splitter": "^2.1.11",
