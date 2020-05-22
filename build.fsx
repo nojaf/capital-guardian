@@ -153,11 +153,7 @@ Target.create "Tests" (fun _ ->
     Yarn.exec "test" setYarnWorkingDirectory)
 
 Target.create "Format" (fun _ ->
-    let fantomasConfig =
-        { FormatConfig.Default with
-              ReorderOpenDeclaration = true
-              KeepNewlineAfter = true }
-
+    let fantomasConfig = FormatConfig.Default
     let fsharpFiles = !!(serverPath </> "*.fs") ++ (clientPath </> "fsharp" </> "*.fs") ++ (sharedPath </> "*.fs")
 
     fsharpFiles

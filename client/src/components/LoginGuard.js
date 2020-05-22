@@ -10,7 +10,7 @@ const LoginGuard = ({ render }) => {
     if (!isAuthenticated) {
       return loginWithRedirect();
     } else {
-      getTokenSilently().then(token => setToken(token));
+      getTokenSilently().then((token) => setToken(token));
     }
   }, [isAuthenticated, loginWithRedirect, getTokenSilently]);
 
@@ -18,7 +18,7 @@ const LoginGuard = ({ render }) => {
 };
 
 LoginGuard.propTypes = {
-  render: PropTypes.func
+  render: PropTypes.func,
 };
 
 export default LoginGuard;

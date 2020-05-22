@@ -17,6 +17,7 @@ module Projections =
             List.choose (function
                 | Event.CancelTransaction id -> Some id
                 | _ -> None) events
+
         fun id -> not (List.contains id cancelled)
 
     let calculateBalance month year events =
@@ -25,9 +26,9 @@ module Projections =
         events
         |> List.fold (fun acc ev ->
             match ev with
-            | AddExpense({ Id = id; Amount = amount; Created = created }) when (filter created && isNotCancelled id) ->
+            | AddExpense ({ Id = id; Amount = amount; Created = created }) when (filter created && isNotCancelled id) ->
                 acc - amount
-            | AddIncome({ Id = id; Amount = amount; Created = created }) when (filter created && isNotCancelled id) ->
+            | AddIncome ({ Id = id; Amount = amount; Created = created }) when (filter created && isNotCancelled id) ->
                 acc + amount
             | _ -> acc) 0.
 
@@ -65,8 +66,8 @@ type Model =
 [<Emit("process.env.REACT_APP_BACKEND")>]
 let private baseUrl = jsNative
 
-let private decodeEvent = Decode.Auto.generateDecoder<Event>()
-let private encodeEvent = Encode.Auto.generateEncoder<Event>()
+let private decodeEvent = Decode.Auto.generateDecoder<Event> ()
+let private encodeEvent = Encode.Auto.generateEncoder<Event> ()
 
 let private authorizationHeader token =
     requestHeaders [ HttpRequestHeaders.Authorization(sprintf "bearer %s" token) ]
@@ -77,7 +78,7 @@ let private fetchEvents token =
 #endif
     let url = sprintf "%s/api/GetEvents" baseUrl
     fetch url [ authorizationHeader token ]
-    |> Promise.bind (fun res -> res.text())
+    |> Promise.bind (fun res -> res.text ())
     |> Promise.map (fun json ->
         Decode.fromString (Decode.list decodeEvent) json
         |> function
@@ -92,6 +93,7 @@ let private postEvents (token, events) =
         |> List.map encodeEvent
         |> Encode.list
         |> Encode.toString 2
+
     fetch url
         [ RequestProperties.Body(!^json)
           RequestProperties.Method HttpMethod.POST
@@ -120,7 +122,8 @@ let private nextKey map =
         |> (+) 1
 
 let private hideToastIn toastId miliSecondes dispatch =
-    JS.setTimeout (fun () -> dispatch (Msg.ClearToast toastId)) miliSecondes |> ignore
+    JS.setTimeout (fun () -> dispatch (Msg.ClearToast toastId)) miliSecondes
+    |> ignore
 
 let private postEventsCommand token events =
     Cmd.OfPromise.either postEvents (token, events) ShowToast NetworkError
@@ -135,16 +138,21 @@ let internal update (msg: Msg) (model: Model) =
     | EventsLoaded events ->
         { model with
               Events = events
-              IsLoading = false }, Cmd.none
+              IsLoading = false },
+        Cmd.none
     | AddIncome transaction ->
         let event = Event.AddIncome transaction
-        { model with Events = event :: model.Events }, postEventCommand model.Token event
+        { model with
+              Events = event :: model.Events },
+        postEventCommand model.Token event
 
     | AddExpense transaction ->
         let event = Event.AddExpense transaction
-        { model with Events = event :: model.Events }, postEventCommand model.Token event
+        { model with
+              Events = event :: model.Events },
+        postEventCommand model.Token event
 
-    | ShowToast(toast) ->
+    | ShowToast (toast) ->
         let toastId = nextKey model.Toasts
         let toasts = Map.add toastId toast model.Toasts
         { model with Toasts = toasts }, Cmd.ofSub (hideToastIn toastId 2500)
@@ -162,19 +170,25 @@ let internal update (msg: Msg) (model: Model) =
                    Body = ne.Message }))
 
     | SpreadOver details ->
-        let expensePerPiece = Math.Round((details.Amount / (float) details.Pieces), 2)
+        let expensePerPiece =
+            Math.Round((details.Amount / (float) details.Pieces), 2)
 
         let events =
             [ 1 .. details.Pieces ]
             |> List.map (fun i ->
-                let name = sprintf "%s (%i/%i)" details.Name i details.Pieces
+                let name =
+                    sprintf "%s (%i/%i)" details.Name i details.Pieces
+
                 let date = details.Start.AddMonths(i - 1)
                 Event.AddExpense
                     ({ Name = name
                        Amount = expensePerPiece
-                       Id = newId()
+                       Id = newId ()
                        Created = date }))
-        { model with Events = events @ model.Events }, postEventsCommand model.Token events
+
+        { model with
+              Events = events @ model.Events },
+        postEventsCommand model.Token events
 
     | CancelTransaction id ->
         let event = Event.CancelTransaction(id)
@@ -185,20 +199,14 @@ let internal update (msg: Msg) (model: Model) =
         let updateTransaction t =
             { t with
                   Created = DateTime.Now
-                  Id = newId() }
+                  Id = newId () }
 
         let event =
             model.Events
             |> List.choose (fun e ->
                 match e with
-                | Event.AddExpense te when (te.Id = id) ->
-                    updateTransaction te
-                    |> Event.AddExpense
-                    |> Some
-                | Event.AddIncome ti when (ti.Id = id) ->
-                    updateTransaction ti
-                    |> Event.AddIncome
-                    |> Some
+                | Event.AddExpense te when (te.Id = id) -> updateTransaction te |> Event.AddExpense |> Some
+                | Event.AddIncome ti when (ti.Id = id) -> updateTransaction ti |> Event.AddIncome |> Some
                 | _ -> None)
             |> List.tryHead
 
@@ -218,11 +226,14 @@ type AppContext =
       Dispatch: Dispatch<Msg> }
 
 let private defaultContextValue: AppContext = Fable.Core.JS.undefined
-let appContext = ReactBindings.React.createContext (defaultContextValue)
+
+let appContext =
+    ReactBindings.React.createContext (defaultContextValue)
 
 let ElmishCapture =
     FunctionComponent.Of
-        ((fun (props: {| children: ReactElement; token: string |}) ->
+        ((fun (props: {| children: ReactElement
+                         token: string |}) ->
 
             let state: IStateHook<AppContext> =
                 Hooks.useState
@@ -230,32 +241,37 @@ let ElmishCapture =
                        Dispatch = ignore })
 
             let view model dispatch =
-                state.update
-                    ({ Model = model
-                       Dispatch = dispatch })
+                state.update ({ Model = model; Dispatch = dispatch })
 
             Hooks.useEffect
-                ((fun () -> Program.mkProgram init update view |> Program.runWith props.token), Array.empty)
+                ((fun () ->
+                    Program.mkProgram init update view
+                    |> Program.runWith props.token),
+                 Array.empty)
 
-            contextProvider appContext state.current [ props.children ]), "ElmishCapture", memoEqualsButFunctions)
+            contextProvider appContext state.current [ props.children ]),
+         "ElmishCapture",
+         memoEqualsButFunctions)
 
-let private useModel() =
+let private useModel () =
     let { Model = model } = Hooks.useContext (appContext)
     model
 
-let private useDispatch() =
+let private useDispatch () =
     let { Dispatch = dispatch } = Hooks.useContext (appContext)
     dispatch
 
 let useBalance month year =
-    let { Events = events } = useModel()
+    let { Events = events } = useModel ()
     Projections.calculateBalance month year events
 
 /// Returns a  list of income and expense of the current month
 let useEntries month year =
-    let { Events = events } = useModel()
+    let { Events = events } = useModel ()
 
-    let isNotCancelled = Projections.isNotCancelledEventChecker events
+    let isNotCancelled =
+        Projections.isNotCancelledEventChecker events
+
     let filter = Projections.isInMonth month year
 
     let sortMapAndToArray (input: Transaction seq) =
@@ -270,21 +286,21 @@ let useEntries month year =
     let income =
         events
         |> Seq.choose (function
-            | Event.AddIncome(ai) when (filter ai.Created && isNotCancelled ai.Id) -> Some ai
+            | Event.AddIncome (ai) when (filter ai.Created && isNotCancelled ai.Id) -> Some ai
             | _ -> None)
         |> sortMapAndToArray
 
     let expenses =
         events
         |> Seq.choose (function
-            | Event.AddExpense(ae) when (filter ae.Created && isNotCancelled ae.Id) -> Some ae
+            | Event.AddExpense (ae) when (filter ae.Created && isNotCancelled ae.Id) -> Some ae
             | _ -> None)
         |> sortMapAndToArray
 
     (income, expenses)
 
-let useIsLoading() =
-    let { IsLoading = isLoading } = useModel()
+let useIsLoading () =
+    let { IsLoading = isLoading } = useModel ()
     isLoading
 
 let private parseDate (value: string) =
@@ -295,13 +311,16 @@ let private parseDate (value: string) =
         | [| year; month; day |] -> DateTime(year, month, day, 12, 0, 0)
         | _ -> DateTime.Now
 
-let useAddEntry() =
-    let dispatch = useDispatch()
-    fun (input: {| name: string; amount: Amount; isIncome: bool; created: string |}) ->
+let useAddEntry () =
+    let dispatch = useDispatch ()
+    fun (input: {| name: string
+                   amount: Amount
+                   isIncome: bool
+                   created: string |}) ->
         let createdDate = parseDate input.created
 
         let entry =
-            { Id = newId()
+            { Id = newId ()
               Name = input.name
               Amount = input.amount
               Created = createdDate }
@@ -328,15 +347,15 @@ let private getMonthName n =
     | 12 -> "December"
     | _ -> "Unknown month"
 
-let useOverviewPerMonth() =
-    let { Events = events } = useModel()
+let useOverviewPerMonth () =
+    let { Events = events } = useModel ()
 
     let months =
         events
         |> List.choose (fun msg ->
             match msg with
-            | Event.AddIncome({ Created = created })
-            | Event.AddExpense({ Created = created }) -> Some(created.Month, created.Year)
+            | Event.AddIncome ({ Created = created })
+            | Event.AddExpense ({ Created = created }) -> Some(created.Month, created.Year)
             | _ -> None)
         |> List.distinct
         |> List.sort
@@ -350,11 +369,14 @@ let useOverviewPerMonth() =
                        balance = Projections.calculateBalance m y events |})
                 |> List.toArray
 
-            let balance = rows |> Array.sumBy (fun mth -> mth.balance)
+            let balance =
+                rows |> Array.sumBy (fun mth -> mth.balance)
+
             {| name = year
                months = rows
                balance = balance |})
         |> List.toArray
+
     months
 
 let useDefaultCreateDate month year =
@@ -362,12 +384,12 @@ let useDefaultCreateDate month year =
     if today.Month = month && today.Year = year then today.ToString("dd") else "01"
     |> sprintf "%02i-%02i-%s" year month
 
-let useFirstOfCurrentMonthDate() =
+let useFirstOfCurrentMonthDate () =
     let today = DateTime.Now
     sprintf "%02i-%02i-01" today.Year today.Month
 
-let useToasts() =
-    let { Toasts = toasts } = useModel()
+let useToasts () =
+    let { Toasts = toasts } = useModel ()
     toasts
     |> Map.toArray
     |> Array.map (fun (id, t) ->
@@ -376,9 +398,12 @@ let useToasts() =
            icon = t.Icon
            body = t.Body |})
 
-let useSpreadOverMonths() =
-    let dispatch = useDispatch()
-    fun (input: {| name: string; amount: Amount; start: string; pieces: int |}) ->
+let useSpreadOverMonths () =
+    let dispatch = useDispatch ()
+    fun (input: {| name: string
+                   amount: Amount
+                   start: string
+                   pieces: int |}) ->
         Msg.SpreadOver
             ({ Name = input.name
                Amount = input.amount
@@ -387,10 +412,12 @@ let useSpreadOverMonths() =
         |> dispatch
     |> f
 
-let useCancelEvent() =
-    let dispatch = useDispatch()
-    (fun (id: Id) -> Msg.CancelTransaction(id) |> dispatch) |> f
+let useCancelEvent () =
+    let dispatch = useDispatch ()
+    (fun (id: Id) -> Msg.CancelTransaction(id) |> dispatch)
+    |> f
 
-let useCloneEvent() =
-    let dispatch = useDispatch()
-    (fun (id: Id) -> Msg.CloneTransaction(id) |> dispatch) |> f
+let useCloneEvent () =
+    let dispatch = useDispatch ()
+    (fun (id: Id) -> Msg.CloneTransaction(id) |> dispatch)
+    |> f

@@ -21,28 +21,28 @@ type Event =
     | AddIncome of Transaction
     | CancelTransaction of Id
 
-let newId() = Guid.NewGuid()
+let newId () = Guid.NewGuid()
 
 let sampleEvents =
     let now = DateTime.Now
 
     [ AddExpense
-        ({ Id = newId()
+        ({ Id = newId ()
            Name = "Rent July"
            Amount = 1000.
            Created = now })
       AddIncome
-          ({ Id = newId()
+          ({ Id = newId ()
              Name = "Wage July"
              Amount = 4000.
              Created = now })
       AddExpense
-          ({ Id = newId()
+          ({ Id = newId ()
              Name = "Movie night"
              Amount = 30.
              Created = now })
       AddExpense
-          ({ Id = newId()
+          ({ Id = newId ()
              Name = "Some beers with the boyz"
              Amount = 50.
              Created = now }) ]

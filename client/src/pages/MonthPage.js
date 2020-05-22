@@ -8,7 +8,7 @@ import {
   useBalance,
   useDefaultCreateDate,
   useCancelEvent,
-  useCloneEvent
+  useCloneEvent,
 } from "../bin/Main";
 import { Alert } from "reactstrap";
 
@@ -58,7 +58,7 @@ const MonthPage = ({ month, year }) => {
 
 MonthPage.propTypes = {
   month: number.isRequired,
-  year: number.isRequired
+  year: number.isRequired,
 };
 
 export default MonthPage;

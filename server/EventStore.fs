@@ -7,13 +7,20 @@ open Nojaf.CapitalGuardian.Shared
 open System
 open Thoth.Json.Net
 
-let private storageAccountName = Environment.GetEnvironmentVariable("StorageAccountName")
-let private storageAuthKey = Environment.GetEnvironmentVariable("StorageAccountKey")
-let private config = TableStorage.Configuration.CreateDefault storageAccountName storageAuthKey
-let private eventStore = TableStorage.EventStore.getEventStore config
+let private storageAccountName =
+    Environment.GetEnvironmentVariable("StorageAccountName")
 
-let private encodeEvent = Encode.Auto.generateEncoder<Event>()
-let decodeEvent = Decode.Auto.generateDecoder<Event>()
+let private storageAuthKey =
+    Environment.GetEnvironmentVariable("StorageAccountKey")
+
+let private config =
+    TableStorage.Configuration.CreateDefault storageAccountName storageAuthKey
+
+let private eventStore =
+    TableStorage.EventStore.getEventStore config
+
+let private encodeEvent = Encode.Auto.generateEncoder<Event> ()
+let decodeEvent = Decode.Auto.generateDecoder<Event> ()
 
 let private getUnionCaseName (x: 'a) =
     match FSharpValue.GetUnionFields(x, typeof<'a>) with
@@ -31,11 +38,15 @@ let appendEvents userId (events: Event list) =
     let cosmoEvents = List.map createEvent events
     task {
         let! _ = eventStore.AppendEvents userId Any cosmoEvents
-        return () }
+        return ()
+    }
 
 let getEvents userId =
     task {
         let! cosmoEvents = eventStore.GetEvents userId AllEvents
-        let events = List.map (fun (ce: EventRead<JsonValue, _>) -> ce.Data) cosmoEvents
+
+        let events =
+            List.map (fun (ce: EventRead<JsonValue, _>) -> ce.Data) cosmoEvents
+
         return events
     }

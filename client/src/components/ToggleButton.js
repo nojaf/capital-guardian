@@ -21,7 +21,7 @@ const ToggleButton = ({ register, name, label }) => {
 ToggleButton.propTypes = {
   register: PropTypes.func.isRequired,
   name: PropTypes.string.isRequired,
-  label: PropTypes.string
+  label: PropTypes.string,
 };
 
 export default ToggleButton;

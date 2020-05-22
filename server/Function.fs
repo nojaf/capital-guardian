@@ -24,17 +24,19 @@ let private sendInternalError err =
     new HttpResponseMessage(HttpStatusCode.InternalServerError,
                             Content = new StringContent(err, System.Text.Encoding.UTF8, "application/text"))
 
-let private unAuthorized() =
+let private unAuthorized () =
     new HttpResponseMessage(HttpStatusCode.Unauthorized)
 
 
 [<FunctionName("AddEvents")>]
-let AddEvents([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)>] req: HttpRequest, log: ILogger) =
+let AddEvents ([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)>] req: HttpRequest, log: ILogger) =
     log.LogInformation("F# HTTP trigger function processed a request...")
     task {
         match! req.Authenticate(log) with
         | Some userId ->
-            let json = using (new StreamReader(req.Body)) (fun stream -> stream.ReadToEnd())
+            let json =
+                using (new StreamReader(req.Body)) (fun stream -> stream.ReadToEnd())
+
             let eventResult =
                 Decode.fromString (Decode.list EventStore.decodeEvent) json
 
@@ -42,22 +44,20 @@ let AddEvents([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)>
             | Ok events ->
                 do! EventStore.appendEvents userId events
                 return sendText "Events persisted"
-            | Error err ->
-                return sendInternalError err
-        | None -> return unAuthorized()
+            | Error err -> return sendInternalError err
+        | None -> return unAuthorized ()
     }
 
 
 [<FunctionName("GetEvents")>]
-let GetEvents([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)>] req: HttpRequest, log: ILogger) =
+let GetEvents ([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)>] req: HttpRequest, log: ILogger) =
     log.LogInformation("F# HTTP trigger function processed a request.........")
 
     task {
         match! req.Authenticate(log) with
         | Some userId ->
             let! events = EventStore.getEvents userId
-            let json =
-                Encode.list events |> Encode.toString 4
+            let json = Encode.list events |> Encode.toString 4
             return sendJson json
-        | None -> return unAuthorized()
+        | None -> return unAuthorized ()
     }

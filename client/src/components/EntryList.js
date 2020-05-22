@@ -50,11 +50,11 @@ EntryList.propTypes = {
     PropTypes.shape({
       id: PropTypes.any.isRequired,
       amount: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired
+      name: PropTypes.string.isRequired,
     }).isRequired
   ).isRequired,
   onDelete: PropTypes.func.isRequired,
-  onClone: PropTypes.func.isRequired
+  onClone: PropTypes.func.isRequired,
 };
 
 export default EntryList;

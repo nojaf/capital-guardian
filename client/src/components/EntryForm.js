@@ -8,15 +8,12 @@ import { useNotLarge } from "../hooks/breakpoints";
 
 const EntrySchema = yup.object().shape({
   name: yup.string().required(),
-  amount: yup
-    .number()
-    .required()
-    .positive(),
+  amount: yup.number().required().positive(),
   isIncome: yup.bool().required(),
   created: yup
     .string()
     .required()
-    .matches(/\d{4}-\d{2}-\d{2}/)
+    .matches(/\d{4}-\d{2}-\d{2}/),
 });
 
 const EntryForm = ({ onSubmit, created }) => {
@@ -26,11 +23,11 @@ const EntryForm = ({ onSubmit, created }) => {
       name: "",
       amount: 0.0,
       isIncome: false,
-      created: created
-    }
+      created: created,
+    },
   });
 
-  const onFormSubmit = values => {
+  const onFormSubmit = (values) => {
     onSubmit(values);
     reset();
   };
@@ -93,7 +90,7 @@ const EntryForm = ({ onSubmit, created }) => {
 
 EntryForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  created: PropTypes.string.isRequired
+  created: PropTypes.string.isRequired,
 };
 
 export default EntryForm;

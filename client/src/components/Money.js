@@ -7,7 +7,7 @@ const Money = ({ amount }) => {
 };
 
 Money.propTypes = {
-  amount: PropTypes.number.isRequired
+  amount: PropTypes.number.isRequired,
 };
 
 export default Money;

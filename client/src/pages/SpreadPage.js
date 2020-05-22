@@ -7,19 +7,12 @@ import { navigate } from "hookrouter";
 
 const SpreadSchema = yup.object().shape({
   name: yup.string().required(),
-  amount: yup
-    .number()
-    .required()
-    .positive(),
-  pieces: yup
-    .number()
-    .required()
-    .positive()
-    .moreThan(1),
+  amount: yup.number().required().positive(),
+  pieces: yup.number().required().positive().moreThan(1),
   start: yup
     .string()
     .required()
-    .matches(/\d{4}-\d{2}-\d{2}/)
+    .matches(/\d{4}-\d{2}-\d{2}/),
 });
 
 const SpreadPage = () => {
@@ -32,11 +25,11 @@ const SpreadPage = () => {
       name: "",
       amount: 0.0,
       pieces: 2,
-      start
-    }
+      start,
+    },
   });
 
-  const onFormSubmit = values => {
+  const onFormSubmit = (values) => {
     onSubmit(values);
     const date = values.start.split("-");
     const url = `/${date[0]}/${date[1]}`;

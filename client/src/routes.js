@@ -7,7 +7,7 @@ const routes = {
   "/:year/:month": ({ year, month }) => (
     <MonthPage year={parseInt(year)} month={parseInt(month)} />
   ),
-  "/spread": () => <SpreadPage />
+  "/spread": () => <SpreadPage />,
 };
 
 export default routes;

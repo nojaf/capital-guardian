@@ -16,7 +16,7 @@ const App = () => {
   return (
     <Auth0Provider {...auth0Config}>
       <LoginGuard
-        render={token => {
+        render={(token) => {
           return (
             <ElmishCapture token={token}>
               {small && <Navigation />}
