@@ -27,7 +27,6 @@ let private sendInternalError err =
 let private unAuthorized () =
     new HttpResponseMessage(HttpStatusCode.Unauthorized)
 
-
 [<FunctionName("AddEvents")>]
 let AddEvents ([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)>] req: HttpRequest, log: ILogger) =
     log.LogInformation("F# HTTP trigger function processed a request...")
@@ -47,7 +46,6 @@ let AddEvents ([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)
             | Error err -> return sendInternalError err
         | None -> return unAuthorized ()
     }
-
 
 [<FunctionName("GetEvents")>]
 let GetEvents ([<HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)>] req: HttpRequest, log: ILogger) =
