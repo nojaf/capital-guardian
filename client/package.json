@@ -6,7 +6,7 @@
     "@auth0/auth0-spa-js": "1.8.2",
     "bootstrap": "^4.5.0",
     "fable-compiler": "^2.10.1",
-    "fable-splitter": "^2.1.11",
+    "fable-splitter": "^2.2.0",
     "hookrouter": "1.2.3",
     "node-sass": "^4.14.1",
     "prettier": "2.0.5",
