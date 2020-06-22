@@ -59,4 +59,5 @@ let private authenticateRequest (logger: ILogger) header =
         task { return None }
 
 type HttpRequest with
-    member this.Authenticate(logger: ILogger) = authenticateRequest logger (this.Headers.["Authorization"].ToString())
+    member this.Authenticate(logger: ILogger) =
+        authenticateRequest logger (this.Headers.["Authorization"].ToString())
