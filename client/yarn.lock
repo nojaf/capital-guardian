@@ -4507,10 +4507,10 @@ fable-compiler@^2.10.1:
   resolved "https://registry.yarnpkg.com/fable-compiler/-/fable-compiler-2.10.1.tgz#d2c12f9531b72d223df36cb3cf43305a506854c3"
   integrity sha512-DM4fXrnpyy6cu3cunZoP8bi5ik9av4TXCL5zr+bH8bFgP+X8PCz6Q2JtGJCeaXAgze2fiwotgOS1CdTWEtbwqw==
 
-fable-splitter@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/fable-splitter/-/fable-splitter-2.2.0.tgz#7c3c1742e1bf04be89d03608c715952685786f12"
-  integrity sha512-t6w1ihGIk4r+pV9HlbISdCGV8lowrDM96xqGKoJqQsu/3+n+uCRDHa/tz8j6v7KIY+3ceyZzALJv0viZCsVYgQ==
+fable-splitter@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/fable-splitter/-/fable-splitter-2.2.1.tgz#99477eb259c03684cc8d065d1167c4579ca8697f"
+  integrity sha512-pr51yTrpX9qVEWW5/ahIlF7Qy0e1j/JxF1La+cQVd10EmtNvenL7E2g/XOl7JvmRNbFx/64MWF9RQP+vJ2aQLA==
   dependencies:
     "@babel/core" "^7.9.6"
     "@babel/plugin-transform-modules-commonjs" "^7.9.6"
