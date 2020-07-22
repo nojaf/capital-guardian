@@ -5,7 +5,7 @@
   "dependencies": {
     "@auth0/auth0-spa-js": "1.10.0",
     "bootstrap": "^4.5.0",
-    "fable-compiler": "^2.10.1",
+    "fable-compiler": "^2.10.2",
     "fable-splitter": "^2.2.1",
     "hookrouter": "1.2.3",
     "node-sass": "^4.14.1",
