@@ -8931,10 +8931,10 @@ react-error-overlay@^6.0.7:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.7.tgz#1dcfb459ab671d53f660a991513cb2f0a0553108"
   integrity sha512-TAv1KJFh3RhqxNvhzxj6LeT5NWklP6rDr2a0jaTfsZ5wSZWHOGeqQyejUp3xxLfPt2UpyJEcVQB/zyPcmonNFA==
 
-react-hook-form@6.3.2:
-  version "6.3.2"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-6.3.2.tgz#3219fca2e1e9735be66c10e5106e653af2ed6059"
-  integrity sha512-wM02rGN25wCX7WLORFE2xj9DIzQiBqmoeIzLS7vrB3yt0xVfLAi502u4FFV2l2RAJDsry/87d8fvvx+kFPv+WA==
+react-hook-form@6.3.3:
+  version "6.3.3"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-6.3.3.tgz#232433fd830758d3050d5d33f66928d20cca0e3d"
+  integrity sha512-DoE97xHjRig50n5nkyqN+70t7Rp3igaBxgr845lQd6OhN3cGC0DlusV2A/sFF7x8enT/2Q5dYiPeipCxtaqgVQ==
 
 react-is@^16.8.1, react-is@^16.8.4:
   version "16.13.1"
