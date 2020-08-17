@@ -13,7 +13,7 @@
     "prop-types": "15.7.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
-    "react-hook-form": "6.3.2",
+    "react-hook-form": "6.4.0",
     "react-scripts": "3.4.3",
     "react-switch": "5.0.1",
     "reactstrap": "8.5.1",
