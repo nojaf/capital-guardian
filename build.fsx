@@ -8,7 +8,7 @@ open Fake.IO
 open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.JavaScript
-open Fantomas.FakeHelpers
+open Fantomas.Extras.FakeHelpers
 open Fantomas.FormatConfig
 open System
 open Thoth.Json.Net
@@ -153,11 +153,10 @@ Target.create "Tests" (fun _ ->
     Yarn.exec "test" setYarnWorkingDirectory)
 
 Target.create "Format" (fun _ ->
-    let fantomasConfig = FormatConfig.Default
     let fsharpFiles = !!(serverPath </> "*.fs") ++ (clientPath </> "fsharp" </> "*.fs") ++ (sharedPath </> "*.fs")
 
     fsharpFiles
-    |> formatCode fantomasConfig
+    |> formatCode
     |> Async.RunSynchronously
     |> printfn "Formatted F# files: %A"
 

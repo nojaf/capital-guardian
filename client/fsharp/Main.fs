@@ -94,7 +94,8 @@ let private postEvents (token, events) =
         |> Encode.list
         |> Encode.toString 2
 
-    fetch url
+    fetch
+        url
         [ RequestProperties.Body(!^json)
           RequestProperties.Method HttpMethod.POST
           authorizationHeader token ]
