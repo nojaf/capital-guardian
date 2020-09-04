@@ -23,6 +23,7 @@ module Projections =
     let calculateBalance month year events =
         let filter = isInMonth month year
         let isNotCancelled = isNotCancelledEventChecker events
+
         events
         |> List.fold (fun acc ev ->
             match ev with
@@ -77,6 +78,7 @@ let private fetchEvents token =
     printfn "token: %s" token
 #endif
     let url = sprintf "%s/api/GetEvents" baseUrl
+
     fetch url [ authorizationHeader token ]
     |> Promise.bind (fun res -> res.text ())
     |> Promise.map (fun json ->
@@ -143,12 +145,14 @@ let internal update (msg: Msg) (model: Model) =
         Cmd.none
     | AddIncome transaction ->
         let event = Event.AddIncome transaction
+
         { model with
               Events = event :: model.Events },
         postEventCommand model.Token event
 
     | AddExpense transaction ->
         let event = Event.AddExpense transaction
+
         { model with
               Events = event :: model.Events },
         postEventCommand model.Token event
@@ -181,6 +185,7 @@ let internal update (msg: Msg) (model: Model) =
                     sprintf "%s (%i/%i)" details.Name i details.Pieces
 
                 let date = details.Start.AddMonths(i - 1)
+
                 Event.AddExpense
                     ({ Name = name
                        Amount = expensePerPiece
@@ -314,6 +319,7 @@ let private parseDate (value: string) =
 
 let useAddEntry () =
     let dispatch = useDispatch ()
+
     fun (input: {| name: string
                    amount: Amount
                    isIncome: bool
@@ -382,6 +388,7 @@ let useOverviewPerMonth () =
 
 let useDefaultCreateDate month year =
     let today = DateTime.Now
+
     if today.Month = month && today.Year = year then today.ToString("dd") else "01"
     |> sprintf "%02i-%02i-%s" year month
 
@@ -391,6 +398,7 @@ let useFirstOfCurrentMonthDate () =
 
 let useToasts () =
     let { Toasts = toasts } = useModel ()
+
     toasts
     |> Map.toArray
     |> Array.map (fun (id, t) ->
@@ -401,6 +409,7 @@ let useToasts () =
 
 let useSpreadOverMonths () =
     let dispatch = useDispatch ()
+
     fun (input: {| name: string
                    amount: Amount
                    start: string
@@ -415,10 +424,12 @@ let useSpreadOverMonths () =
 
 let useCancelEvent () =
     let dispatch = useDispatch ()
+
     (fun (id: Id) -> Msg.CancelTransaction(id) |> dispatch)
     |> f
 
 let useCloneEvent () =
     let dispatch = useDispatch ()
+
     (fun (id: Id) -> Msg.CloneTransaction(id) |> dispatch)
     |> f

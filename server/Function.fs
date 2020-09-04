@@ -30,6 +30,7 @@ let private unAuthorized () =
 [<FunctionName("AddEvents")>]
 let AddEvents ([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)>] req: HttpRequest, log: ILogger) =
     log.LogInformation("F# HTTP trigger function processed a request...")
+
     task {
         match! req.Authenticate(log) with
         | Some userId ->

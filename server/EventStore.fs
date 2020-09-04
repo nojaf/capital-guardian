@@ -36,6 +36,7 @@ let private createEvent event =
 
 let appendEvents userId (events: Event list) =
     let cosmoEvents = List.map createEvent events
+
     task {
         let! _ = eventStore.AppendEvents userId Any cosmoEvents
         return ()
