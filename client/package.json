@@ -5,7 +5,7 @@
   "dependencies": {
     "@auth0/auth0-spa-js": "1.11.0",
     "bootstrap": "^4.5.2",
-    "fable-compiler": "^2.11.0",
+    "fable-compiler": "^2.13.0",
     "fable-splitter": "^2.2.1",
     "hookrouter": "1.2.3",
     "node-sass": "^4.14.1",
@@ -13,7 +13,7 @@
     "prop-types": "15.7.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
-    "react-hook-form": "6.5.3",
+    "react-hook-form": "6.7.1",
     "react-scripts": "3.4.3",
     "react-switch": "5.0.1",
     "reactstrap": "8.5.1",
