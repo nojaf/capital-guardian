@@ -42,7 +42,11 @@ let private authenticateRequest (logger: ILogger) header =
 
     try
         task {
-            let! config = manager.GetConfigurationAsync().ConfigureAwait(false)
+            let! config =
+                manager
+                    .GetConfigurationAsync()
+                    .ConfigureAwait(false)
+
             parameters.IssuerSigningKeys <- config.SigningKeys
 
             let user, _ =
