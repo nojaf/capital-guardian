@@ -28,6 +28,7 @@ const EntryForm = ({ onSubmit, created }) => {
   });
 
   const onFormSubmit = (values) => {
+    console.log(`values`, values);
     onSubmit(values);
     reset();
   };

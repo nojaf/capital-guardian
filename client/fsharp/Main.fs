@@ -323,7 +323,7 @@ let useAddEntry () =
 
     fun (input: {| name: string
                    amount: string
-                   isIncome: bool
+                   isIncome: string
                    created: string |}) ->
         let createdDate = parseDate input.created
 
@@ -334,7 +334,7 @@ let useAddEntry () =
               Created = createdDate }
 
         let msg =
-            if input.isIncome then AddIncome entry else AddExpense entry
+            if input.isIncome = "true" then AddIncome entry else AddExpense entry
 
         dispatch msg
     |> f
