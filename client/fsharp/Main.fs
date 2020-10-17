@@ -285,6 +285,7 @@ let useEntries month year =
         |> Seq.sortBy (fun ai -> ai.Created)
         |> Seq.map (fun ai ->
             {| id = ai.Id
+               date = ai.Created.ToString("dd/MM")
                name = ai.Name
                amount = ai.Amount |})
         |> Seq.toArray
@@ -311,7 +312,7 @@ let useIsLoading () =
 
 let private parseDate (value: string) =
     value.Split([| '-' |])
-    |> Array.map (System.Int32.Parse)
+    |> Array.map (Int32.Parse)
     |> fun pieces ->
         match pieces with
         | [| year; month; day |] -> DateTime(year, month, day, 12, 0, 0)

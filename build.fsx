@@ -9,7 +9,6 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.JavaScript
 open Fantomas.Extras.FakeHelpers
-open Fantomas.FormatConfig
 open System
 open Thoth.Json.Net
 

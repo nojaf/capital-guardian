@@ -8,6 +8,7 @@ const EntryList = ({ entries, onDelete, onClone }) => {
     return (
       <tr key={i}>
         <td>{e.name}</td>
+        <td>{e.date}</td>
         <td>
           <Button
             color={"danger"}
@@ -36,6 +37,7 @@ const EntryList = ({ entries, onDelete, onClone }) => {
       <thead>
         <tr>
           <th className={"w-50"}>Name</th>
+          <th className={"w-25"}>Date</th>
           <th className={"w-25"}>Actions</th>
           <th className={"w-25"}>Amount</th>
         </tr>

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="host.json">
