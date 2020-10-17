@@ -322,7 +322,7 @@ let useAddEntry () =
     let dispatch = useDispatch ()
 
     fun (input: {| name: string
-                   amount: Amount
+                   amount: string
                    isIncome: bool
                    created: string |}) ->
         let createdDate = parseDate input.created
@@ -330,7 +330,7 @@ let useAddEntry () =
         let entry =
             { Id = newId ()
               Name = input.name
-              Amount = input.amount
+              Amount = JS.parseFloat input.amount
               Created = createdDate }
 
         let msg =
