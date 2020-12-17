@@ -13,16 +13,22 @@ open System.Net.Http
 open Thoth.Json.Net
 
 let private sendJson json =
-    new HttpResponseMessage(HttpStatusCode.OK,
-                            Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"))
+    new HttpResponseMessage(
+        HttpStatusCode.OK,
+        Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+    )
 
 let private sendText text =
-    new HttpResponseMessage(HttpStatusCode.OK,
-                            Content = new StringContent(text, System.Text.Encoding.UTF8, "application/text"))
+    new HttpResponseMessage(
+        HttpStatusCode.OK,
+        Content = new StringContent(text, System.Text.Encoding.UTF8, "application/text")
+    )
 
 let private sendInternalError err =
-    new HttpResponseMessage(HttpStatusCode.InternalServerError,
-                            Content = new StringContent(err, System.Text.Encoding.UTF8, "application/text"))
+    new HttpResponseMessage(
+        HttpStatusCode.InternalServerError,
+        Content = new StringContent(err, System.Text.Encoding.UTF8, "application/text")
+    )
 
 let private unAuthorized () =
     new HttpResponseMessage(HttpStatusCode.Unauthorized)

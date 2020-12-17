@@ -35,8 +35,10 @@ let private authenticateRequest (logger: ILogger) header =
     parameters.NameClaimType <- ClaimTypes.NameIdentifier // Auth0 related, see https://community.auth0.com/t/access-token-doesnt-contain-a-sub-claim/17671/2
 
     let manager =
-        ConfigurationManager<OpenIdConnectConfiguration>
-            (sprintf "https://%s/.well-known/openid-configuration" Auth0Domain, OpenIdConnectConfigurationRetriever())
+        ConfigurationManager<OpenIdConnectConfiguration>(
+            sprintf "https://%s/.well-known/openid-configuration" Auth0Domain,
+            OpenIdConnectConfigurationRetriever()
+        )
 
     let handler = JwtSecurityTokenHandler()
 

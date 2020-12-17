@@ -32,5 +32,5 @@ nuget Fake.Core.Target
 nuget Fake.IO.FileSystem
 nuget Fake.JavaScript.Yarn
 nuget Fake.DotNet.Paket
-nuget Fantomas.Extras 4.2.0
+nuget Fantomas.Extras 4.3.0
 nuget Thoth.Json.Net

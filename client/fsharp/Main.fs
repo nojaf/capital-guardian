@@ -14,9 +14,11 @@ module Projections =
 
     let isNotCancelledEventChecker events =
         let cancelled =
-            List.choose (function
+            List.choose
+                (function
                 | Event.CancelTransaction id -> Some id
-                | _ -> None) events
+                | _ -> None)
+                events
 
         fun id -> not (List.contains id cancelled)
 
@@ -25,13 +27,17 @@ module Projections =
         let isNotCancelled = isNotCancelledEventChecker events
 
         events
-        |> List.fold (fun acc ev ->
-            match ev with
-            | AddExpense ({ Id = id; Amount = amount; Created = created }) when (filter created && isNotCancelled id) ->
-                acc - amount
-            | AddIncome ({ Id = id; Amount = amount; Created = created }) when (filter created && isNotCancelled id) ->
-                acc + amount
-            | _ -> acc) 0.
+        |> List.fold
+            (fun acc ev ->
+                match ev with
+                | AddExpense ({ Id = id
+                                Amount = amount
+                                Created = created }) when (filter created && isNotCancelled id) -> acc - amount
+                | AddIncome ({ Id = id
+                               Amount = amount
+                               Created = created }) when (filter created && isNotCancelled id) -> acc + amount
+                | _ -> acc)
+            0.
 
 let private f g = System.Func<_, _>(g)
 
@@ -81,11 +87,12 @@ let private fetchEvents token =
 
     fetch url [ authorizationHeader token ]
     |> Promise.bind (fun res -> res.text ())
-    |> Promise.map (fun json ->
-        Decode.fromString (Decode.list decodeEvent) json
-        |> function
-        | Ok events -> events
-        | Error e -> failwithf "%s" e)
+    |> Promise.map
+        (fun json ->
+            Decode.fromString (Decode.list decodeEvent) json
+            |> function
+            | Ok events -> events
+            | Error e -> failwithf "%s" e)
 
 let private postEvents (token, events) =
     let url = sprintf "%s/api/AddEvents" baseUrl
@@ -101,10 +108,11 @@ let private postEvents (token, events) =
         [ RequestProperties.Body(!^json)
           RequestProperties.Method HttpMethod.POST
           authorizationHeader token ]
-    |> Promise.map (fun _ ->
-        { Icon = "success"
-          Title = "Saved"
-          Body = "☁ persisted events to the cloud." })
+    |> Promise.map
+        (fun _ ->
+            { Icon = "success"
+              Title = "Saved"
+              Body = "☁ persisted events to the cloud." })
 
 let internal initialState =
     { IsLoading = true
@@ -168,11 +176,13 @@ let internal update (msg: Msg) (model: Model) =
 
     | NetworkError ne ->
         model,
-        Cmd.ofMsg
-            (ShowToast
-                ({ Title = "Network Error"
-                   Icon = "danger"
-                   Body = ne.Message }))
+        Cmd.ofMsg (
+            ShowToast(
+                { Title = "Network Error"
+                  Icon = "danger"
+                  Body = ne.Message }
+            )
+        )
 
     | SpreadOver details ->
         let expensePerPiece =
@@ -180,17 +190,19 @@ let internal update (msg: Msg) (model: Model) =
 
         let events =
             [ 1 .. details.Pieces ]
-            |> List.map (fun i ->
-                let name =
-                    sprintf "%s (%i/%i)" details.Name i details.Pieces
+            |> List.map
+                (fun i ->
+                    let name =
+                        sprintf "%s (%i/%i)" details.Name i details.Pieces
 
-                let date = details.Start.AddMonths(i - 1)
+                    let date = details.Start.AddMonths(i - 1)
 
-                Event.AddExpense
-                    ({ Name = name
-                       Amount = expensePerPiece
-                       Id = newId ()
-                       Created = date }))
+                    Event.AddExpense(
+                        { Name = name
+                          Amount = expensePerPiece
+                          Id = newId ()
+                          Created = date }
+                    ))
 
         { model with
               Events = events @ model.Events },
@@ -209,11 +221,12 @@ let internal update (msg: Msg) (model: Model) =
 
         let event =
             model.Events
-            |> List.choose (fun e ->
-                match e with
-                | Event.AddExpense te when (te.Id = id) -> updateTransaction te |> Event.AddExpense |> Some
-                | Event.AddIncome ti when (ti.Id = id) -> updateTransaction ti |> Event.AddIncome |> Some
-                | _ -> None)
+            |> List.choose
+                (fun e ->
+                    match e with
+                    | Event.AddExpense te when (te.Id = id) -> updateTransaction te |> Event.AddExpense |> Some
+                    | Event.AddIncome ti when (ti.Id = id) -> updateTransaction ti |> Event.AddIncome |> Some
+                    | _ -> None)
             |> List.tryHead
 
         let events =
@@ -237,27 +250,30 @@ let appContext =
     ReactBindings.React.createContext (defaultContextValue)
 
 let ElmishCapture =
-    FunctionComponent.Of
-        ((fun (props: {| children: ReactElement
-                         token: string |}) ->
+    FunctionComponent.Of(
+        (fun (props: {| children: ReactElement
+                        token: string |}) ->
 
             let state: IStateHook<AppContext> =
-                Hooks.useState
-                    ({ Model = initialState
-                       Dispatch = ignore })
+                Hooks.useState (
+                    { Model = initialState
+                      Dispatch = ignore }
+                )
 
             let view model dispatch =
                 state.update ({ Model = model; Dispatch = dispatch })
 
-            Hooks.useEffect
-                ((fun () ->
+            Hooks.useEffect (
+                (fun () ->
                     Program.mkProgram init update view
                     |> Program.runWith props.token),
-                 Array.empty)
+                Array.empty
+            )
 
             contextProvider appContext state.current [ props.children ]),
-         "ElmishCapture",
-         memoEqualsButFunctions)
+        "ElmishCapture",
+        memoEqualsButFunctions
+    )
 
 let private useModel () =
     let { Model = model } = Hooks.useContext (appContext)
@@ -283,23 +299,26 @@ let useEntries month year =
     let sortMapAndToArray (input: Transaction seq) =
         input
         |> Seq.sortBy (fun ai -> ai.Created)
-        |> Seq.map (fun ai ->
-            {| id = ai.Id
-               date = ai.Created.ToString("dd/MM")
-               name = ai.Name
-               amount = ai.Amount |})
+        |> Seq.map
+            (fun ai ->
+                {| id = ai.Id
+                   date = ai.Created.ToString("dd/MM")
+                   name = ai.Name
+                   amount = ai.Amount |})
         |> Seq.toArray
 
     let income =
         events
-        |> Seq.choose (function
+        |> Seq.choose
+            (function
             | Event.AddIncome (ai) when (filter ai.Created && isNotCancelled ai.Id) -> Some ai
             | _ -> None)
         |> sortMapAndToArray
 
     let expenses =
         events
-        |> Seq.choose (function
+        |> Seq.choose
+            (function
             | Event.AddExpense (ae) when (filter ae.Created && isNotCancelled ae.Id) -> Some ae
             | _ -> None)
         |> sortMapAndToArray
@@ -360,29 +379,32 @@ let useOverviewPerMonth () =
 
     let months =
         events
-        |> List.choose (fun msg ->
-            match msg with
-            | Event.AddIncome ({ Created = created })
-            | Event.AddExpense ({ Created = created }) -> Some(created.Month, created.Year)
-            | _ -> None)
+        |> List.choose
+            (fun msg ->
+                match msg with
+                | Event.AddIncome ({ Created = created })
+                | Event.AddExpense ({ Created = created }) -> Some(created.Month, created.Year)
+                | _ -> None)
         |> List.distinct
         |> List.sort
         |> List.groupBy snd
-        |> List.map (fun (year, months) ->
-            let rows =
-                months
-                |> List.map (fun (m, y) ->
-                    {| name = getMonthName m
-                       month = m
-                       balance = Projections.calculateBalance m y events |})
-                |> List.toArray
+        |> List.map
+            (fun (year, months) ->
+                let rows =
+                    months
+                    |> List.map
+                        (fun (m, y) ->
+                            {| name = getMonthName m
+                               month = m
+                               balance = Projections.calculateBalance m y events |})
+                    |> List.toArray
 
-            let balance =
-                rows |> Array.sumBy (fun mth -> mth.balance)
+                let balance =
+                    rows |> Array.sumBy (fun mth -> mth.balance)
 
-            {| name = year
-               months = rows
-               balance = balance |})
+                {| name = year
+                   months = rows
+                   balance = balance |})
         |> List.toArray
 
     months
@@ -402,11 +424,12 @@ let useToasts () =
 
     toasts
     |> Map.toArray
-    |> Array.map (fun (id, t) ->
-        {| id = id
-           title = t.Title
-           icon = t.Icon
-           body = t.Body |})
+    |> Array.map
+        (fun (id, t) ->
+            {| id = id
+               title = t.Title
+               icon = t.Icon
+               body = t.Body |})
 
 let useSpreadOverMonths () =
     let dispatch = useDispatch ()
@@ -415,11 +438,12 @@ let useSpreadOverMonths () =
                    amount: Amount
                    start: string
                    pieces: int |}) ->
-        Msg.SpreadOver
-            ({ Name = input.name
-               Amount = input.amount
-               Start = parseDate input.start
-               Pieces = input.pieces })
+        Msg.SpreadOver(
+            { Name = input.name
+              Amount = input.amount
+              Start = parseDate input.start
+              Pieces = input.pieces }
+        )
         |> dispatch
     |> f
 
