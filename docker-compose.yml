@@ -1,0 +1,37 @@
+version: '3.3'
+
+services:
+  fable-client:
+    image: mcr.microsoft.com/dotnet/sdk:5.0-focal
+    container_name: fable-client
+    volumes:
+      - /workspace/capital-guardian:/workspace/capital-guardian
+    working_dir: /workspace/capital-guardian
+    command: >
+      bash -c "dotnet tool restore && dotnet fable watch ./src/client/fsharp/client.fsproj --outDir ./src/client/src/bin"
+  snowpack:
+    image: node:14.16
+    container_name: snowpack
+    volumes:
+      - /workspace/capital-guardian/src/client:/workspace/capital-guardian/src/client
+    ports:
+      - "8080:8080"
+    environment:
+      SNOWPACK_PUBLIC_BACKEND: https://8000-${GITPOD_WORKSPACE_ID}.ws-eu03.gitpod.io
+      SNOWPACK_PUBLIC_AUTH0_DOMAIN: ${SNOWPACK_PUBLIC_AUTH0_DOMAIN}
+      SNOWPACK_PUBLIC_AUTH0_CLIENT_ID: ${SNOWPACK_PUBLIC_AUTH0_CLIENT_ID}
+      SNOWPACK_PUBLIC_AUTH0_AUDIENCE: ${SNOWPACK_PUBLIC_AUTH0_AUDIENCE}
+    depends_on:
+      - fable-client
+    working_dir: /workspace/capital-guardian/src/client
+    command: >
+      bash -c "yarn && yarn start"
+  # azure-function:
+  #   container_name: azure-function
+  #   image: mcr.microsoft.com/azure-functions/dotnet:3.0.3284-dotnet3-core-tools
+  #   volumes:
+  #     - /workspace/capital-guardian/src/server:/workspace/capital-guardian/src/server
+  #   ports:
+  #     - "8000:8000"
+  #   working_dir: /workspace/capital-guardian/src/server
+  #   command: func start --csharp --port 8000 --verbose --cors *

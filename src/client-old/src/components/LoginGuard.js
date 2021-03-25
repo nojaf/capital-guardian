@@ -4,7 +4,8 @@ import { useAuth0 } from "../react-auth0-spa";
 import PropTypes from "prop-types";
 
 const LoginGuard = ({ render }) => {
-  const { isAuthenticated, loginWithRedirect, getTokenSilently } = useAuth0();
+  const { isAuthenticated, loginWithRedirect, getTokenSilently, error } = useAuth0();
+  console.log(error);
   const [token, setToken] = useState(null);
   useEffect(() => {
     if (!isAuthenticated) {

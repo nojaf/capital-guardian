@@ -152,12 +152,9 @@ Target.create "Tests" (fun _ ->
     Yarn.exec "test" setYarnWorkingDirectory)
 
 Target.create "Format" (fun _ ->
-    let fsharpFiles = !!(serverPath </> "*.fs") ++ (clientPath </> "fsharp" </> "*.fs") ++ (sharedPath </> "*.fs")
-
-    fsharpFiles
-    |> formatCode
-    |> Async.RunSynchronously
-    |> printfn "Formatted F# files: %A"
+    let result = DotNet.exec id "fantomas" "src -r"
+    if not result.OK then
+        printfn "Errors while formatting all files: %A" result.Messages
 
     Yarn.exec "format" setYarnWorkingDirectory)
 
