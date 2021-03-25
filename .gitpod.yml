@@ -1,0 +1,15 @@
+image: gitpod/workspace-dotnet
+vscode:
+  extensions:
+    - muhammad-sammy.csharp
+    - ionide.ionide-fsharp
+    - syler.sass-indented
+tasks:
+- command: sudo docker-up
+ports:
+  - port: 8000
+    visibility: public
+    onOpen: ignore
+  - port: 8080
+    visibility: public
+    onOpen: ignore
