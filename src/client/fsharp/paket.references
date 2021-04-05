@@ -1,0 +1,7 @@
+group client
+Fable.React
+Feliz.UseElmish
+Fable.Promise
+Fable.Fetch
+Thoth.Json
+Zanaptak.TypedCssClasses
