@@ -1,6 +1,14 @@
 version: '3.3'
 
 services:
+  sass:
+    image: node:14.16
+    container_name: sass
+    volumes:
+      - /workspace/capital-guardian/src/client:/workspace/capital-guardian/src/client
+    working_dir: /workspace/capital-guardian/src/client
+    command:
+      bash -c "yarn && yarn sass src/style.sass fsharp/style.css --no-source-map --watch"
   fable-client:
     image: mcr.microsoft.com/dotnet/sdk:5.0-focal
     container_name: fable-client

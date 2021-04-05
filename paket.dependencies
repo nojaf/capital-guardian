@@ -23,6 +23,7 @@ nuget Fable.Promise
 nuget Fable.Fetch
 nuget Thoth.Json
 nuget Feliz.UseElmish
+nuget Zanaptak.TypedCssClasses
 
 group build
 storage:none
