@@ -1,0 +1,30 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/client"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: react-hook-form
+    versions:
+    - 6.15.5
+    - 7.0.0
+    - 7.0.2
+    - 7.0.3
+    - 7.0.4
+    - 7.0.5
+    - 7.0.7
+    - 7.1.0
+    - 7.2.1
+    - 7.2.3
+    - 7.3.3
+    - 7.3.4
+  - dependency-name: use-breakpoint
+    versions:
+    - 1.1.7
+  - dependency-name: y18n
+    versions:
+    - 4.0.1
+    - 4.0.2
