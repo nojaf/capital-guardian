@@ -16,7 +16,7 @@
     "react-hook-form": "6.15.4",
     "react-scripts": "4.0.3",
     "react-switch": "6.0.0",
-    "reactstrap": "8.9.0",
+    "reactstrap": "8.10.1",
     "use-breakpoint": "1.1.6",
     "yup": "0.32.9"
   },
